@@ -1,22 +1,21 @@
 package de.eclipseiptv.shots;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Shader;
+import android.graphics.Typeface;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Locale;
-
-import javax.imageio.ImageIO;
 
 /** Ein kleiner Xtream-Server mit erfundenen Daten fuer die Screenshot-Tests. */
 public final class FakeXtream {
@@ -33,21 +32,35 @@ public final class FakeXtream {
             "Nordlicht", "Spiegelbild"};
     static final String[] SERIES = {"Dunkelfeld", "Die Akademie", "Küstenwache Nord", "Schattenspiel", "Das Archiv", "Blutmond", "Hafenkante",
             "Der Kreis", "Zeitsprung", "Eisland", "Wolkenreich", "Stadt der Lichter"};
-    static final Color[] PALETTE = {new Color(0x5B1A2B), new Color(0x1E3A5F), new Color(0x2E4A2E), new Color(0x4A2E5B), new Color(0x6B3A1A),
-            new Color(0x1A4A4A), new Color(0x3A1A1A), new Color(0x2B2B4A)};
+    static final int[] PALETTE = {0xFF5B1A2B, 0xFF1E3A5F, 0xFF2E4A2E, 0xFF4A2E5B, 0xFF6B3A1A, 0xFF1A4A4A, 0xFF3A1A1A, 0xFF2B2B4A};
 
-    private final HttpServer server;
+    private final ServerSocket server;
+    private volatile boolean running = true;
     public final String base;
 
     public FakeXtream() throws Exception {
-        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/", this::handle);
-        server.start();
-        base = "http://127.0.0.1:" + server.getAddress().getPort();
+        server = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"));
+        base = "http://127.0.0.1:" + server.getLocalPort();
+        Thread t = new Thread(() -> {
+            while (running) {
+                try {
+                    Socket c = server.accept();
+                    new Thread(() -> handle(c)).start();
+                } catch (Exception e) {
+                    if (!running) return;
+                }
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     public void stop() {
-        server.stop(0);
+        running = false;
+        try {
+            server.close();
+        } catch (Exception ignored) {
+        }
     }
 
     private static String q(String s) {
@@ -58,12 +71,27 @@ public final class FakeXtream {
         return Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.UTF_8));
     }
 
-    private void handle(HttpExchange ex) {
-        try {
-            String path = ex.getRequestURI().getPath();
-            String query = ex.getRequestURI().getRawQuery() == null ? "" : ex.getRequestURI().getRawQuery();
+    private void handle(Socket c) {
+        try (Socket sock = c) {
+            InputStream in = sock.getInputStream();
+            StringBuilder head = new StringBuilder();
+            int b;
+            while ((b = in.read()) >= 0) {
+                head.append((char) b);
+                if (head.length() >= 4 && head.substring(head.length() - 4).equals("\r\n\r\n")) break;
+            }
+            String[] req = head.toString().split(" ");
+            String target = req.length > 1 ? req[1] : "/";
+            int qi = target.indexOf('?');
+            String path = qi >= 0 ? target.substring(0, qi) : target;
+            String query = qi >= 0 ? target.substring(qi + 1) : "";
+            OutputStream out = sock.getOutputStream();
             if (path.startsWith("/img/")) {
-                send(ex, "image/png", image(path.substring(5)));
+                send(out, "image/png", image(path.substring(5)));
+                return;
+            }
+            if (!path.endsWith("player_api.php")) {
+                out.write("HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".getBytes(StandardCharsets.UTF_8));
                 return;
             }
             String action = "";
@@ -72,23 +100,16 @@ public final class FakeXtream {
                 if (p.startsWith("action=")) action = p.substring(7);
                 if (p.startsWith("vod_id=") || p.startsWith("series_id=") || p.startsWith("stream_id=")) id = p.substring(p.indexOf('=') + 1);
             }
-            send(ex, "application/json", json(action, id).getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            try {
-                ex.sendResponseHeaders(500, -1);
-            } catch (Exception ignored) {
-            }
-        } finally {
-            ex.close();
+            send(out, "application/json", json(action, id).getBytes(StandardCharsets.UTF_8));
+        } catch (Exception ignored) {
         }
     }
 
-    private static void send(HttpExchange ex, String type, byte[] body) throws Exception {
-        ex.getResponseHeaders().add("Content-Type", type);
-        ex.sendResponseHeaders(200, body.length);
-        try (OutputStream o = ex.getResponseBody()) {
-            o.write(body);
-        }
+    private static void send(OutputStream out, String type, byte[] body) throws Exception {
+        out.write(("HTTP/1.1 200 OK\r\nContent-Type: " + type + "\r\nContent-Length: " + body.length + "\r\nConnection: close\r\n\r\n")
+                .getBytes(StandardCharsets.UTF_8));
+        out.write(body);
+        out.flush();
     }
 
     private String json(String action, String id) {
@@ -198,37 +219,38 @@ public final class FakeXtream {
     }
 
     /** Erzeugt Platzhalterbilder: Logos, Poster, Hintergruende. */
-    private static byte[] image(String name) throws Exception {
+    private static synchronized byte[] image(String name) {
         String key = name.replace(".png", "");
         int n = Math.abs(key.hashCode());
-        boolean logo = key.startsWith("logo"), poster = key.startsWith("poster") || key.startsWith("cover"), wide = key.startsWith("backdrop") || key.startsWith("still");
+        boolean logo = key.startsWith("logo"), poster = key.startsWith("poster") || key.startsWith("cover");
         int w = logo ? 200 : poster ? 300 : 640, h = logo ? 120 : poster ? 450 : 360;
-        BufferedImage img = new BufferedImage(w, h, logo ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = img.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        Color c = PALETTE[n % PALETTE.length];
+        Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Canvas g = new Canvas(bmp);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         if (logo) {
-            g.setColor(new Color(255, 255, 255, 235));
-            g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 52));
-            String t = key.substring(5);
-            String label = new String[]{"ARD", "ZDF", "RTL", "SAT1", "PRO7", "VOX", "K1", "RTL2", "3sat", "arte", "neo", "ONE"}[Integer.parseInt(t) % 12];
-            int tw = g.getFontMetrics().stringWidth(label);
-            g.drawString(label, (w - tw) / 2, 78);
+            String[] labels = {"ARD", "ZDF", "RTL", "SAT1", "PRO7", "VOX", "K1", "RTL2", "3sat", "arte", "neo", "ONE"};
+            String label = labels[Integer.parseInt(key.substring(5)) % labels.length];
+            p.setColor(0xEEFFFFFF);
+            p.setTextSize(54);
+            p.setTypeface(Typeface.DEFAULT_BOLD);
+            p.setTextAlign(Paint.Align.CENTER);
+            g.drawText(label, w / 2f, 80, p);
         } else {
-            g.setPaint(new GradientPaint(0, 0, c.brighter(), w, h, c.darker().darker()));
-            g.fillRect(0, 0, w, h);
-            g.setColor(new Color(255, 255, 255, 40));
-            g.fillOval(w / 2, h / 6, w, w);
+            int c = PALETTE[n % PALETTE.length];
+            p.setShader(new LinearGradient(0, 0, w, h, c | 0xFF000000, 0xFF0A0A0F, Shader.TileMode.CLAMP));
+            g.drawRect(0, 0, w, h, p);
+            p.setShader(null);
+            p.setColor(0x28FFFFFF);
+            g.drawCircle(w * 0.8f, h * 0.35f, w * 0.45f, p);
             if (poster) {
-                g.setColor(new Color(255, 255, 255, 220));
-                g.setFont(new Font(Font.SERIF, Font.BOLD, 34));
-                g.drawString(String.format(Locale.ROOT, "Nº %d", n % 97), 22, h - 40);
+                p.setColor(0xE6FFFFFF);
+                p.setTextSize(36);
+                p.setTypeface(Typeface.create(Typeface.SERIF, Typeface.BOLD));
+                g.drawText(String.format(Locale.ROOT, "Nº %d", n % 97), 22, h - 40, p);
             }
         }
-        g.dispose();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(img, "png", out);
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
         return out.toByteArray();
     }
 }
