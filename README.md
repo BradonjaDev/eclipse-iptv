@@ -20,11 +20,20 @@ Eclipse IPTV ist aus [Oma TV](https://github.com/BradonjaDev/oma-tv) hervorgegan
 bewusst nur eine Handvoll Sender; Eclipse IPTV ist das Gegenstück für Playlists mit zehntausenden
 Einträgen.
 
+<p align="center">
+  <img src="docs/sender.jpg" alt="Senderliste mit Vorschau und Programm" width="49%">
+  <img src="docs/start.jpg" alt="Startseite" width="49%">
+  <img src="docs/serien.jpg" alt="Serien" width="49%">
+  <img src="docs/film.jpg" alt="Detailseite eines Films" width="49%">
+</p>
+<p align="center"><sub>Bildschirmfotos mit erfundenen Testdaten, automatisch erzeugt bei jedem Push.</sub></p>
+
 ## Was die App kann
 
 - **Große Playlists:** zehntausende Sender, Filme und Serien werden in eine lokale Datenbank eingelesen und sind danach sofort durchsuchbar
 - **Listen entstehen von selbst:** die Kategorien der Playlist werden übernommen, getrennt nach Sendern, Filmen und Serien
 - **Xtream-Zugänge werden erkannt:** aus einem Link der Form `…/get.php?username=…&password=…` holt die App zusätzlich Beschreibungen, Besetzung, Bewertungen, Trailer und das laufende Programm
+- **Vorschau neben der Senderliste:** Zurück aus dem Vollbild läuft der Sender klein weiter, ohne neu zu laden – über dieselbe Verbindung, auch bei Zugängen mit nur einer erlaubten Verbindung
 - **Programm zum Sender:** was läuft gerade, wie lange noch, was kommt danach
 - **Filme und Serien mit Detailseite:** Poster, Handlung, Trailer (über die YouTube-App), Staffeln und Folgen
 - **Weiterschauen:** die App merkt sich, wo du aufgehört hast, und spielt bei Serien die nächste Folge
@@ -32,6 +41,7 @@ Einträgen.
 - **Player:** Umschalten mit ▲▼, Senderliste auf OK, Zifferneingabe, Tonspur, Untertitel und Bildformat; spielt auch AC3, E-AC3 und DTS
 - **Jugendschutz:** Inhalte ab 18 sind standardmäßig ausgeblendet; einzelne Kategorien lassen sich verbergen
 - **Einrichtung vom Handy:** QR-Code scannen, Link einfügen, fertig
+- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, rote Wolken; die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
 - Kein Konto, keine Werbung, keine Datensammlung
 
 ## Installieren
@@ -64,6 +74,8 @@ Weitere Playlists lassen sich später unter **Optionen → Playlists verwalten**
 | Listen | OK lang auf einem Eintrag | Favorit setzen oder entfernen |
 | Listen | OK lang auf einer Kategorie | Kategorie ausblenden |
 | Überall | Zurück | eine Ebene zurück, auf der Startseite zweimal zum Beenden |
+| Vollbild | Zurück | zurück zur Liste, der Sender läuft in der Vorschau weiter |
+| Senderliste | ◀ | zurück zu den Kategorien, noch einmal ◀ zur Leiste |
 | Sender | ▲ / ▼ oder P+ / P− | nächster / vorheriger Sender |
 | Sender | OK | Senderliste |
 | Sender | ◀ | zurück zum vorherigen Sender |
@@ -93,6 +105,11 @@ liegt in den GitHub-Secrets `ECLIPSE_KEYSTORE_BASE64` und `ECLIPSE_KEYSTORE_PASS
 
 `tools/check.sh` prüft den Code in wenigen Sekunden ohne Android SDK (nur Typprüfung, keine APK).
 
+**Bildschirmfotos:** Der Workflow „Screenshots“ startet die App bei jedem Push ohne Gerät
+(Robolectric) mit einem kleinen Test-Server voller erfundener Sender, Filme und Serien, bedient
+sie mit den Pfeiltasten und legt die Bilder als Artefakt `screenshots` ab
+(`app/src/test/java/de/eclipseiptv/shots`). Logo und Banner entstehen aus `tools/art/gen.py`.
+
 ## Aufbau
 
 | Paket / Datei | Aufgabe |
@@ -103,6 +120,8 @@ liegt in den GitHub-Secrets `ECLIPSE_KEYSTORE_BASE64` und `ECLIPSE_KEYSTORE_PASS
 | `MainActivity` | Leiste links und die Bereiche Suche, Start, Sender, Filme, Serien, Optionen |
 | `ui/BrowseView`, `HomeView`, `SearchView`, `SettingsView` | die Bereiche |
 | `ui/TvRecycler`, `Cards`, `Sheet`, `Ui` | Listen für die Fernbedienung, Karten, Auswahlfenster, Farben und Maße |
+| `ui/LivePlayer`, `LivePreview` | der gemeinsame Sender-Player und die Vorschau neben der Senderliste |
+| `ui/Clouds`, `EclipseView` | Wolken und Finsternis |
 | `DetailActivity` | Film- und Serienseite |
 | `PlayerActivity` | Player (Media3/ExoPlayer) |
 | `SetupActivity`, `SetupServer` | Einrichtung, kleiner Webserver für das Handy |
