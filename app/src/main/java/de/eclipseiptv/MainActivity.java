@@ -29,6 +29,9 @@ import de.eclipseiptv.data.Prefs;
 import de.eclipseiptv.data.Source;
 import de.eclipseiptv.data.Sync;
 import de.eclipseiptv.ui.BrowseView;
+import de.eclipseiptv.ui.Clouds;
+import de.eclipseiptv.ui.EclipseView;
+import de.eclipseiptv.ui.LivePlayer;
 import de.eclipseiptv.ui.HomeView;
 import de.eclipseiptv.ui.Host;
 import de.eclipseiptv.ui.SearchView;
@@ -61,27 +64,30 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         db = Db.get(this);
         prefs = new Prefs(this);
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.HORIZONTAL);
+        FrameLayout root = new FrameLayout(this);
         root.setBackground(backdrop());
+        root.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
         rail = new Rail(this);
-        root.addView(rail, new LinearLayout.LayoutParams(Ui.dp(76), ViewGroup.LayoutParams.MATCH_PARENT));
+        row.addView(rail, new LinearLayout.LayoutParams(Ui.dp(76), ViewGroup.LayoutParams.MATCH_PARENT));
         content = new FrameLayout(this);
         content.setClipChildren(false);
-        root.addView(content, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        row.addView(content, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        root.addView(row, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(root);
         if (state != null) pending = state.getInt("section", HOME);
     }
 
-    /** Schwarzer Hintergrund mit rotem Mondlicht aus der oberen Ecke und Wolkenbaendern. */
-    static Drawable backdrop() {
+    /** Schwarzer Hintergrund mit rotem Mondlicht aus der oberen Ecke. Die Wolken liegen als eigene Ebene darueber. */
+    public static Drawable backdrop() {
         GradientDrawable glow = new GradientDrawable();
         glow.setGradientType(GradientDrawable.RADIAL_GRADIENT);
         glow.setColors(new int[]{0x4DC20E26, 0x187E0A1B, 0x00000000});
         glow.setGradientCenter(0.92f, -0.1f);
         glow.setGradientRadius(Ui.px(540));
         GradientDrawable base = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFF0C070A, Ui.BG, 0xFF040304});
-        return new LayerDrawable(new Drawable[]{base, glow, new de.eclipseiptv.ui.Clouds()});
+        return new LayerDrawable(new Drawable[]{base, glow});
     }
 
     @Override
@@ -94,11 +100,13 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     protected void onStart() {
         super.onStart();
         Sync.add(this);
+        LivePlayer.attach();
     }
 
     @Override
     protected void onStop() {
         Sync.remove(this);
+        LivePlayer.detach();
         super.onStop();
     }
 
@@ -118,6 +126,8 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
             return;
         }
         setupOpened = false;
+        // Die Vorschau gibt es nur bei den Sendern; anderswo soll kein Ton im Hintergrund weiterlaufen.
+        if (current != LIVE) LivePlayer.stop();
         if (current < 0) {
             switchTo(pending);
             buttons[current].requestFocus();
@@ -161,6 +171,7 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
             else v = new BrowseView(this, this, i == LIVE ? Item.LIVE : i == VOD ? Item.VOD : Item.SERIES);
             sections[i] = v;
         }
+        if (i != LIVE) LivePlayer.stop();
         current = i;
         content.removeAllViews();
         content.addView(sections[i], new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -291,13 +302,22 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
             super(c);
             setOrientation(VERTICAL);
             setGravity(Gravity.CENTER_HORIZONTAL);
-            setPadding(0, Ui.dp(22), 0, Ui.dp(16));
-            setBackgroundColor(0x8C0A0810);
+            setPadding(0, Ui.dp(18), 0, Ui.dp(16));
+            GradientDrawable shade = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xF0080507, 0xC00A0608});
+            GradientDrawable edge = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0x00DD1A34, 0x8CDD1A34, 0x00DD1A34});
+            LayerDrawable bg = new LayerDrawable(new Drawable[]{shade, edge});
+            bg.setLayerGravity(1, Gravity.END | Gravity.FILL_VERTICAL);
+            bg.setLayerWidth(1, Math.max(1, Ui.dp(1)));
+            setBackground(bg);
+            EclipseView logo = new EclipseView(c);
+            LayoutParams lp0 = new LayoutParams(Ui.dp(34), Ui.dp(34));
+            lp0.bottomMargin = Ui.dp(14);
+            addView(logo, lp0);
             for (int i = 0; i < LABELS.length; i++) {
                 if (i == SETTINGS) addView(new View(c), new LayoutParams(1, 0, 1));
                 buttons[i] = button(c, i);
-                LayoutParams lp = new LayoutParams(Ui.dp(62), Ui.dp(50));
-                lp.bottomMargin = Ui.dp(6);
+                LayoutParams lp = new LayoutParams(Ui.dp(64), Ui.dp(52));
+                lp.bottomMargin = Ui.dp(5);
                 addView(buttons[i], lp);
             }
         }
@@ -306,20 +326,17 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
             LinearLayout b = new LinearLayout(c);
             b.setOrientation(VERTICAL);
             b.setGravity(Gravity.CENTER);
-            StateListDrawable bg = new StateListDrawable();
-            bg.addState(new int[]{android.R.attr.state_focused}, Ui.cloak(13));
-            bg.addState(new int[]{android.R.attr.state_activated}, Ui.rect(0x33DD1A34, 13));
-            bg.addState(new int[]{}, Ui.rect(0x00000000, 13));
-            b.setBackground(bg);
+            b.setBackground(Ui.rowBg(13));
             b.setFocusable(true);
             b.setClickable(true);
-            b.addView(Ui.icon(c, ICONS[index], Ui.states(Ui.ON_ACCENT, Ui.ACCENT_HOT, Ui.DIM)), new LayoutParams(Ui.dp(20), Ui.dp(20)));
-            TextView t = Ui.line(c, 8f, Ui.DIM, true);
-            t.setTextColor(Ui.states(Ui.ON_ACCENT, Ui.ACCENT_HOT, Ui.DIM));
+            b.addView(Ui.icon(c, ICONS[index], Ui.states(Ui.WHITE, Ui.ACCENT_HOT, Ui.DIM)), new LayoutParams(Ui.dp(20), Ui.dp(20)));
+            TextView t = Ui.line(c, 8.5f, Ui.DIM, true);
+            t.setTextColor(Ui.states(Ui.WHITE, Ui.TEXT, Ui.DIM));
             t.setDuplicateParentStateEnabled(true);
             t.setText(LABELS[index]);
-            t.setPadding(0, Ui.dp(4), 0, 0);
-            b.addView(t);
+            t.setGravity(Gravity.CENTER);
+            t.setPadding(0, Ui.dp(5), 0, 0);
+            b.addView(t, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             final Runnable go = new Runnable() {
                 @Override
                 public void run() {

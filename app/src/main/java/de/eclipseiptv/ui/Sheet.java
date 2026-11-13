@@ -82,16 +82,20 @@ public final class Sheet extends Dialog {
         row.setClickable(true);
         row.setActivated(current);
         TextView l = Ui.line(c, 12.5f, Ui.TEXT, false);
+        l.setTextColor(Ui.rowText(Ui.TEXT));
+        l.setDuplicateParentStateEnabled(true);
         l.setText(label);
         row.addView(l, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         if (value != null && !value.isEmpty()) {
             TextView v = Ui.line(c, 10.5f, Ui.ACCENT_HOT, false);
+            v.setTextColor(Ui.rowValue(Ui.ACCENT_HOT));
+            v.setDuplicateParentStateEnabled(true);
             v.setText(value);
             v.setPadding(Ui.dp(10), 0, 0, 0);
             row.addView(v);
         } else if (current) {
             LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(Ui.dp(14), Ui.dp(14));
-            row.addView(Ui.icon(c, Ui.I_CHECK, Ui.ACCENT), ip);
+            row.addView(Ui.icon(c, Ui.I_CHECK, Ui.states(Ui.WHITE, Ui.ACCENT_HOT, Ui.ACCENT_HOT)), ip);
         }
         row.setOnClickListener(new View.OnClickListener() {
             @Override

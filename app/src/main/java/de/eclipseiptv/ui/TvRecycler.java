@@ -25,6 +25,7 @@ public class TvRecycler extends RecyclerView {
     private boolean lockAxis;
     private boolean vertical = true;
     private OnSelect onSelect;
+    private View exitLeft, exitRight;
 
     public TvRecycler(Context c) {
         super(c);
@@ -58,6 +59,16 @@ public class TvRecycler extends RecyclerView {
     /** Fokus verlaesst die Liste nicht in Blaetter-Richtung (oben/unten bei senkrechten Listen). */
     public TvRecycler lockAxis(boolean lock) {
         lockAxis = lock;
+        return this;
+    }
+
+    /**
+     * Wohin der Fokus geht, wenn er die Liste nach links bzw. rechts verlaesst. Ohne Angabe
+     * sucht Android selbst – und landet dabei manchmal ganz woanders.
+     */
+    public TvRecycler exits(View left, View right) {
+        exitLeft = left;
+        exitRight = right;
         return this;
     }
 
@@ -123,12 +134,18 @@ public class TvRecycler extends RecyclerView {
     protected boolean onRequestFocusInDescendants(int direction, Rect previous) {
         ViewHolder h = findViewHolderForAdapterPosition(selected);
         if (h != null && h.itemView.requestFocus()) return true;
+        if (getAdapter() != null && selected < getAdapter().getItemCount()) {
+            // Die gemerkte Zeile ist gerade nicht aufgebaut: hinblaettern und dann fokussieren.
+            jumpTo(selected, true);
+        }
         return super.onRequestFocusInDescendants(direction, previous);
     }
 
     @Override
     public View focusSearch(View focused, int direction) {
         View next = super.focusSearch(focused, direction);
+        View exit = direction == FOCUS_LEFT ? exitLeft : direction == FOCUS_RIGHT ? exitRight : null;
+        if (exit != null && (next == null || !isInside(next)) && exit.getVisibility() == VISIBLE && hasFocusables(exit)) return exit;
         boolean along = vertical ? (direction == FOCUS_UP || direction == FOCUS_DOWN)
                 : (direction == FOCUS_LEFT || direction == FOCUS_RIGHT);
         if (!along || next == null || isInside(next)) return next;
@@ -137,6 +154,13 @@ public class TvRecycler extends RecyclerView {
         // Beim schnellen Blaettern ist die naechste Zeile evtl. noch nicht aufgebaut: Fokus halten.
         if (canScroll || lockAxis) return focused;
         return next;
+    }
+
+    private static boolean hasFocusables(View v) {
+        if (v instanceof RecyclerView) return ((RecyclerView) v).getAdapter() != null && ((RecyclerView) v).getAdapter().getItemCount() > 0;
+        ArrayList<View> l = new ArrayList<>();
+        v.addFocusables(l, FOCUS_FORWARD);
+        return !l.isEmpty();
     }
 
     private boolean isInside(View v) {

@@ -33,6 +33,7 @@ import de.eclipseiptv.data.Db;
 import de.eclipseiptv.data.Prefs;
 import de.eclipseiptv.data.Source;
 import de.eclipseiptv.data.Sync;
+import de.eclipseiptv.ui.Clouds;
 import de.eclipseiptv.ui.EclipseView;
 import de.eclipseiptv.ui.Sheet;
 import de.eclipseiptv.ui.Ui;
@@ -63,7 +64,6 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
 
     private void build() {
         LinearLayout root = new LinearLayout(this);
-        root.setBackground(MainActivity.backdrop());
         root.setPadding(Ui.dp(56), Ui.dp(40), Ui.dp(48), Ui.dp(30));
 
         LinearLayout left = new LinearLayout(this);
@@ -121,7 +121,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
 
         LinearLayout right = new LinearLayout(this);
         right.setOrientation(LinearLayout.VERTICAL);
-        right.setBackground(Ui.outline(0xB3121019, 16, Ui.LINE, 0.6f));
+        right.setBackground(Ui.outline(0xD9120C0F, 16, Ui.LINE, 0.6f));
         right.setPadding(Ui.dp(14), Ui.dp(18), Ui.dp(14), Ui.dp(14));
         TextView h = Ui.line(this, 14f, Ui.TEXT, true);
         h.setText("Deine Playlists");
@@ -134,7 +134,11 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         scroll.addView(sourceBox);
         right.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         root.addView(right, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.85f));
-        setContentView(root);
+        FrameLayout frame = new FrameLayout(this);
+        frame.setBackground(MainActivity.backdrop());
+        frame.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        frame.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        setContentView(frame);
         firstButton.requestFocus();
     }
 
@@ -287,15 +291,21 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
         TextView n = Ui.line(this, 13f, Ui.TEXT, false);
+        n.setTextColor(Ui.rowText(Ui.TEXT));
+        n.setDuplicateParentStateEnabled(true);
         n.setText(s.name);
         texts.addView(n);
         TextView d = Ui.line(this, 9.5f, Ui.FAINT, false);
+        d.setTextColor(Ui.states(0xFFFFE3E7, Ui.FAINT, Ui.FAINT));
+        d.setDuplicateParentStateEnabled(true);
         d.setText((s.isXtream() ? "Xtream" : "M3U") + "  ·  " + s.nLive + " Sender  ·  " + s.nVod + " Filme  ·  " + s.nSeries + " Serien");
         d.setPadding(0, Ui.dp(3), 0, 0);
         texts.addView(d);
         r.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         if (active) {
             TextView a = Ui.line(this, 9.5f, Ui.ACCENT_HOT, true);
+            a.setTextColor(Ui.rowValue(Ui.ACCENT_HOT));
+            a.setDuplicateParentStateEnabled(true);
             a.setText("AKTIV");
             a.setLetterSpacing(0.1f);
             r.addView(a);

@@ -26,6 +26,20 @@ public final class EpgPanel extends LinearLayout {
     private final View barFill;
     private final FrameLayout bar;
 
+    /** Platzsparend fuer die Spalte unter der Vorschau. */
+    public void compact() {
+        setPadding(Ui.dp(14), Ui.dp(12), Ui.dp(14), Ui.dp(12));
+        ViewGroup.LayoutParams lp = logo.getLayoutParams();
+        lp.width = Ui.dp(56);
+        lp.height = Ui.dp(36);
+        logo.setLayoutParams(lp);
+        name.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, Ui.px(12.5f));
+        Ui.lines(desc, 3);
+        Ui.lines(next, 3);
+        ((LayoutParams) nowLabel.getLayoutParams()).topMargin = Ui.dp(10);
+        ((LayoutParams) nextLabel.getLayoutParams()).topMargin = Ui.dp(10);
+    }
+
     public static String hm(long t) {
         return HM.format(new Date(t));
     }
@@ -33,7 +47,7 @@ public final class EpgPanel extends LinearLayout {
     public EpgPanel(Context c) {
         super(c);
         setOrientation(VERTICAL);
-        setBackground(Ui.outline(Ui.SURFACE, 14, Ui.LINE, 0.6f));
+        setBackground(Ui.outline(0xE6120C0F, 12, Ui.LINE, 0.6f));
         setPadding(Ui.dp(16), Ui.dp(16), Ui.dp(16), Ui.dp(14));
 
         LinearLayout head = new LinearLayout(c);

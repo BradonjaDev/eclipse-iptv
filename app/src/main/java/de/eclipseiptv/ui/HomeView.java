@@ -2,6 +2,7 @@ package de.eclipseiptv.ui;
 
 import android.content.Context;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -34,31 +35,52 @@ public final class HomeView extends FrameLayout implements Section {
         rows = new Rows(c, h);
         addView(rows, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        LinearLayout hero = new LinearLayout(c);
-        hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(Ui.dp(22), Ui.dp(26), Ui.dp(28), Ui.dp(8));
-        hero.addView(new EclipseView(c), new LinearLayout.LayoutParams(Ui.dp(58), Ui.dp(58)));
+        // Kopf: grosse Finsternis mit Wolken davor, daneben der Name, rechts die Uhr
+        FrameLayout hero = new FrameLayout(c);
+        hero.setClipChildren(false);
+        View back = Clouds.view(c, true, 0.9f, 22000, 6);
+        hero.addView(back, at(Ui.dp(4), Ui.dp(20), Ui.dp(22 * Clouds.RATIO), Ui.dp(22)));
+        hero.addView(new EclipseView(c), at(Ui.dp(16), Ui.dp(14), Ui.dp(104), Ui.dp(104)));
+        View front = Clouds.view(c, false, 1f, 18000, 8);
+        hero.addView(front, at(Ui.dp(60), Ui.dp(86), Ui.dp(30 * Clouds.RATIO), Ui.dp(30)));
+
         LinearLayout names = new LinearLayout(c);
         names.setOrientation(LinearLayout.VERTICAL);
-        TextView brand = Ui.line(c, 25f, Ui.TEXT, true);
-        brand.setText("Eclipse IPTV");
-        brand.setLetterSpacing(0.02f);
-        names.addView(brand);
+        LinearLayout word = new LinearLayout(c);
+        word.setGravity(Gravity.BOTTOM);
+        TextView brand = Ui.line(c, 32f, Ui.TEXT, true);
+        brand.setText("ECLIPSE");
+        brand.setLetterSpacing(0.16f);
+        word.addView(brand);
+        TextView iptv = Ui.line(c, 13f, Ui.ACCENT_HOT, true);
+        iptv.setText("IPTV");
+        iptv.setLetterSpacing(0.4f);
+        iptv.setPadding(Ui.dp(10), 0, 0, Ui.dp(5));
+        word.addView(iptv);
+        names.addView(word);
+        View rule = new View(c);
+        rule.setBackground(new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{Ui.ACCENT, 0x00DD1A34}));
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(Ui.dp(220), Math.max(1, Ui.dp(1.2f)));
+        rp.topMargin = Ui.dp(7);
+        names.addView(rule, rp);
         summary = Ui.line(c, 10.5f, Ui.DIM, false);
-        summary.setPadding(0, Ui.dp(3), 0, 0);
+        summary.setPadding(0, Ui.dp(7), 0, 0);
         names.addView(summary);
-        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-        np.leftMargin = Ui.dp(14);
-        hero.addView(names, np);
+        hero.addView(names, at(Ui.dp(140), Ui.dp(34), ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
         LinearLayout time = new LinearLayout(c);
         time.setOrientation(LinearLayout.VERTICAL);
         time.setGravity(Gravity.END);
-        clock = Ui.line(c, 23f, Ui.TEXT, false);
+        clock = Ui.line(c, 26f, Ui.TEXT, false);
         time.addView(clock);
         date = Ui.line(c, 10f, Ui.DIM, false);
         time.addView(date);
-        hero.addView(time);
-        rows.box().addView(hero);
+        FrameLayout.LayoutParams tp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END | Gravity.TOP);
+        tp.topMargin = Ui.dp(30);
+        tp.rightMargin = Ui.dp(30);
+        hero.addView(time, tp);
+        rows.box().addView(hero, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(132)));
 
         hint = Ui.text(c, 12f, Ui.FAINT, false);
         hint.setPadding(Ui.dp(22), Ui.dp(30), Ui.dp(40), 0);
@@ -145,6 +167,13 @@ public final class HomeView extends FrameLayout implements Section {
             b.append(e.item != null ? e.item.ext : e.mark != null ? e.mark.ext + ":" + e.progress : "").append(',');
         }
         return b.append('|').toString();
+    }
+
+    private static FrameLayout.LayoutParams at(int x, int y, int w, int h) {
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w, h);
+        lp.leftMargin = x;
+        lp.topMargin = y;
+        return lp;
     }
 
     private static List<Item> limit(List<Item> l, int n) {

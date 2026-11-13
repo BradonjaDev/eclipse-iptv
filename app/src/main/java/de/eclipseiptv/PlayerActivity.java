@@ -19,20 +19,13 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.Tracks;
-import androidx.media3.datasource.DefaultDataSource;
-import androidx.media3.datasource.DefaultHttpDataSource;
-import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
 
@@ -45,7 +38,6 @@ import java.util.Locale;
 import de.eclipseiptv.data.Bg;
 import de.eclipseiptv.data.Db;
 import de.eclipseiptv.data.Epg;
-import de.eclipseiptv.data.Http;
 import de.eclipseiptv.data.Item;
 import de.eclipseiptv.data.PlayQueue;
 import de.eclipseiptv.data.Playable;
@@ -56,6 +48,7 @@ import de.eclipseiptv.data.Text;
 import de.eclipseiptv.ui.Cards;
 import de.eclipseiptv.ui.EpgPanel;
 import de.eclipseiptv.ui.Img;
+import de.eclipseiptv.ui.LivePlayer;
 import de.eclipseiptv.ui.Sheet;
 import de.eclipseiptv.ui.TvRecycler;
 import de.eclipseiptv.ui.Ui;
@@ -137,7 +130,7 @@ public final class PlayerActivity extends Activity implements Player.Listener {
 
         message = Ui.text(this, 13f, Ui.TEXT, false);
         message.setGravity(Gravity.CENTER);
-        message.setBackground(Ui.rect(0xE6121019, 12));
+        message.setBackground(Ui.rect(0xE6120C0F, 12));
         message.setPadding(Ui.dp(22), Ui.dp(14), Ui.dp(22), Ui.dp(14));
         message.setLineSpacing(Ui.px(4), 1f);
         message.setVisibility(View.GONE);
@@ -146,7 +139,7 @@ public final class PlayerActivity extends Activity implements Player.Listener {
         root.addView(message, mp);
 
         number = Ui.text(this, 34f, Ui.ACCENT_HOT, true);
-        number.setBackground(Ui.rect(0xD9121019, 12));
+        number.setBackground(Ui.rect(0xD9120C0F, 12));
         number.setPadding(Ui.dp(18), Ui.dp(8), Ui.dp(18), Ui.dp(8));
         number.setVisibility(View.GONE);
         FrameLayout.LayoutParams np = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
@@ -327,19 +320,39 @@ public final class PlayerActivity extends Activity implements Player.Listener {
     protected void onStart() {
         super.onStart();
         if (!ready) return;
-        DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory().setUserAgent(Http.UA)
-                .setAllowCrossProtocolRedirects(true).setConnectTimeoutMs(15000).setReadTimeoutMs(20000);
-        DefaultRenderersFactory renderers = new DefaultRenderersFactory(this)
-                .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON).setEnableDecoderFallback(true);
-        player = new ExoPlayer.Builder(this, renderers)
-                .setMediaSourceFactory(new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this, http))).build();
-        player.setAudioAttributes(new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(), true);
-        player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon()
-                .setPreferredAudioLanguage(Locale.getDefault().getLanguage()).build());
+        if (live) {
+            // Sender laufen ueber den gemeinsamen Player, damit sie in der Vorschau weiterlaufen koennen.
+            LivePlayer.attach();
+            player = LivePlayer.get(this);
+        } else {
+            LivePlayer.release();
+            player = LivePlayer.create(this);
+        }
         player.addListener(this);
         video.setPlayer(player);
-        start(resumePos);
+        Playable want = queue.get(index);
+        if (live && LivePlayer.isOn(want)) {
+            // Laeuft schon (aus der Vorschau): nur uebernehmen, nicht neu laden.
+            cur = want;
+            retries = 0;
+            triedAlt = false;
+            started = player.getPlaybackState() == Player.STATE_READY;
+            spinner.setVisibility(player.getPlaybackState() == Player.STATE_BUFFERING ? View.VISIBLE : View.GONE);
+            showBanner();
+            loadEpg();
+            Bg.cancel(markWatched);
+            Bg.uiDelayed(markWatched, 8000);
+        } else {
+            start(resumePos);
+        }
         tick.run();
+    }
+
+    @Override
+    protected void onPause() {
+        // Beim Zurueckgehen die Bildflaeche sofort abgeben, damit die Vorschau sie uebernehmen kann.
+        if (isFinishing() && live && player != null) video.setPlayer(null);
+        super.onPause();
     }
 
     @Override
@@ -362,7 +375,8 @@ public final class PlayerActivity extends Activity implements Player.Listener {
             resumePos = live ? -1 : player.getCurrentPosition();
             video.setPlayer(null);
             player.removeListener(this);
-            player.release();
+            if (live) LivePlayer.detach();
+            else player.release();
             player = null;
         }
         super.onStop();
@@ -396,12 +410,12 @@ public final class PlayerActivity extends Activity implements Player.Listener {
             showMessage("Für diesen Eintrag gibt es keinen Link.");
             return;
         }
-        MediaItem.Builder b = new MediaItem.Builder().setUri(url);
-        String low = url.toLowerCase();
-        if (low.contains(".m3u8")) b.setMimeType(MimeTypes.APPLICATION_M3U8);
-        else if (low.contains(".mpd")) b.setMimeType(MimeTypes.APPLICATION_MPD);
-        if (!live && from > 0) player.setMediaItem(b.build(), from);
-        else player.setMediaItem(b.build());
+        if (live) {
+            LivePlayer.play(this, cur, url);
+            return;
+        }
+        if (from > 0) player.setMediaItem(LivePlayer.item(url), from);
+        else player.setMediaItem(LivePlayer.item(url));
         player.prepare();
         player.setPlayWhenReady(true);
     }

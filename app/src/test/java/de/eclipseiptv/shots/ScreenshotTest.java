@@ -134,6 +134,8 @@ public class ScreenshotTest {
     }
 
     private void run(FakeXtream server) throws Exception {
+        // Fernbedienung statt Touchscreen: sonst nimmt Android keinen Tastenfokus an
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().setInTouchMode(false);
         android.content.Context app = ApplicationProvider.getApplicationContext();
         Source s = Source.xtream(server.base, "demo", "demo");
         s.name = "Wohnzimmer";
@@ -218,30 +220,47 @@ public class ScreenshotTest {
         shot(uc.get(), "10-einrichtung");
         uc.pause().stop().destroy();
 
-        try {
-            List<Playable> q = new ArrayList<>();
-            for (Item it : db.items(id, Item.LIVE, "1", false)) q.add(Playable.live(s, it, false));
-            PlayQueue.set(s, q, 1, "DE • Deutschland");
-            ActivityController<PlayerActivity> pc = Robolectric.buildActivity(PlayerActivity.class).setup();
-            idle(800);
-            shot(pc.get(), "11-player-einblendung");
-            press(pc.get(), KeyEvent.KEYCODE_DPAD_CENTER);
-            idle(600);
-            shot(pc.get(), "12-player-senderliste");
-            pc.pause().stop().destroy();
-        } catch (Throwable t) {
-            note("Player: " + t);
-        }
-
+        // Senderliste -> Vollbild -> zurueck: der Sender laeuft in der Vorschau weiter
         mc = Robolectric.buildActivity(MainActivity.class).setup();
         main = mc.get();
         idle(1200);
         press(main, KeyEvent.KEYCODE_DPAD_DOWN);
         idle(600);
-        press(main, KeyEvent.KEYCODE_DPAD_CENTER);
-        idle(1500);
-        shot(main, "13-sender-mit-vorschau");
-        note("Nach Rueckkehr: " + focus(main));
+        press(main, KeyEvent.KEYCODE_DPAD_RIGHT);
+        idle(800);
+        press(main, KeyEvent.KEYCODE_DPAD_RIGHT);
+        idle(600);
+        press(main, KeyEvent.KEYCODE_DPAD_DOWN);
+        idle(600);
+        note("Vor dem Vollbild: " + focus(main));
+        try {
+            List<Playable> q = new ArrayList<>();
+            for (Item it : db.items(id, Item.LIVE, "1", false)) q.add(Playable.live(s, it, false));
+            PlayQueue.set(s, q, 1, "DE • Deutschland");
+            mc.pause();
+            ActivityController<PlayerActivity> pc = Robolectric.buildActivity(PlayerActivity.class).setup();
+            mc.stop();
+            idle(800);
+            shot(pc.get(), "11-player-einblendung");
+            press(pc.get(), KeyEvent.KEYCODE_DPAD_UP);
+            idle(400);
+            note("Nach Umschalten laeuft: " + (de.eclipseiptv.ui.LivePlayer.current() == null ? "nichts" : de.eclipseiptv.ui.LivePlayer.current().title));
+            press(pc.get(), KeyEvent.KEYCODE_DPAD_CENTER);
+            idle(600);
+            shot(pc.get(), "12-player-senderliste");
+            press(pc.get(), KeyEvent.KEYCODE_BACK);
+            pc.get().finish();
+            pc.pause();
+            mc.restart().start().resume();
+            pc.stop().destroy();
+            idle(1500);
+            note("Vorschau nach Rueckkehr: " + (de.eclipseiptv.ui.LivePlayer.current() == null ? "nichts" : de.eclipseiptv.ui.LivePlayer.current().title));
+            note("Fokus nach Rueckkehr: " + focus(main));
+            shot(main, "13-sender-mit-vorschau");
+        } catch (Throwable t) {
+            note("Player: " + t);
+            for (StackTraceElement e : t.getStackTrace()) if (e.getClassName().startsWith("de.eclipseiptv")) note("   at " + e);
+        }
 
         Dialog d = ShadowDialog.getLatestDialog();
         if (d != null && d.isShowing()) shot(d.getWindow().getDecorView(), "14-dialog");

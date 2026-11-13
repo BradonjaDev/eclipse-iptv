@@ -25,6 +25,7 @@ import de.eclipseiptv.data.Source;
 /** Bereich mit Kategorien links und den Eintraegen rechts (Sender, Filme oder Serien). */
 public final class BrowseView extends LinearLayout implements Section {
     private static final int COLUMNS = 6;
+    private static final int CATS_WIDTH = 204;
     private final Host host;
     private final int kind;
     private final TvRecycler cats, list;
@@ -32,6 +33,7 @@ public final class BrowseView extends LinearLayout implements Section {
     private final Cards cards;
     private final TextView title, info, empty;
     private EpgPanel epg;
+    private LivePreview preview;
 
     private List<Category> categories = new ArrayList<>();
     private Category current;
@@ -45,11 +47,16 @@ public final class BrowseView extends LinearLayout implements Section {
         setOrientation(HORIZONTAL);
         boolean live = kind == Item.LIVE;
 
+        if (live) {
+            // Eine grosse, gedaempfte Finsternis hinter der Senderliste
+            setBackground(new EclipseView.Art(0.34f).at(0.44f, 0.56f, 0.47f));
+        }
         cats = new TvRecycler(c).vertical().lockAxis(true);
         cats.setPadding(Ui.dp(8), Ui.dp(20), Ui.dp(8), Ui.dp(20));
         cats.setAdapter(catAdapter);
-        cats.setBackgroundColor(0x66121019);
-        addView(cats, new LayoutParams(Ui.dp(214), ViewGroup.LayoutParams.MATCH_PARENT));
+        cats.setBackground(new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{0xD90A0608, 0xB30A0608}));
+        addView(cats, new LayoutParams(Ui.dp(CATS_WIDTH), ViewGroup.LayoutParams.MATCH_PARENT));
         cats.onSelect(new TvRecycler.OnSelect() {
             @Override
             public void onSelect(int position) {
@@ -81,8 +88,8 @@ public final class BrowseView extends LinearLayout implements Section {
         FrameLayout listBox = new FrameLayout(c);
         body.addView(listBox, new LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
-        // Breite der Spalte: 960 - Leiste 76 - Kategorien 214 - Raender 30 = 640
-        int cell = 640 / COLUMNS;
+        // Breite der Spalte: 960 - Leiste 76 - Kategorien - Raender 30
+        int cell = (960 - 76 - CATS_WIDTH - 30) / COLUMNS;
         cards = new Cards(live ? Cards.ROW : Cards.POSTER, cell, new Cards.Listener() {
             @Override
             public void onClick(Cards.Entry e, int position) {
@@ -129,13 +136,24 @@ public final class BrowseView extends LinearLayout implements Section {
         listBox.addView(empty, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         if (live) {
+            LinearLayout side = new LinearLayout(c);
+            side.setOrientation(VERTICAL);
+            int w = 300;
+            preview = new LivePreview(c);
+            side.addView(preview, new LayoutParams(Ui.dp(w), Ui.dp(w * 9f / 16f)));
             epg = new EpgPanel(c);
-            LayoutParams ep = new LayoutParams(Ui.dp(262), ViewGroup.LayoutParams.MATCH_PARENT);
-            ep.leftMargin = Ui.dp(12);
-            ep.bottomMargin = Ui.dp(20);
-            body.addView(epg, ep);
+            epg.compact();
+            LayoutParams ep = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1);
+            ep.topMargin = Ui.dp(10);
+            side.addView(epg, ep);
             epg.setVisibility(INVISIBLE);
+            LayoutParams sp = new LayoutParams(Ui.dp(w), ViewGroup.LayoutParams.MATCH_PARENT);
+            sp.leftMargin = Ui.dp(12);
+            sp.bottomMargin = Ui.dp(20);
+            body.addView(side, sp);
         }
+        list.exits(cats, null);
+        cats.exits(null, list);
     }
 
     private final Runnable reloadSoon = new Runnable() {
@@ -155,6 +173,7 @@ public final class BrowseView extends LinearLayout implements Section {
 
     @Override
     public void refresh() {
+        if (preview != null) preview.attach(host.source());
         loadCategories();
     }
 
@@ -237,6 +256,16 @@ public final class BrowseView extends LinearLayout implements Section {
                     public void run() {
                         if (gen != loadGen) return;
                         int keepPos = same ? list.selected() : 0;
+                        de.eclipseiptv.data.Playable playing = LivePlayer.current();
+                        if (kind == Item.LIVE && playing != null) {
+                            // Zurueck aus dem Vollbild: auf dem Sender landen, der gerade laeuft
+                            for (int i = 0; i < out.size(); i++) {
+                                if (out.get(i).item.ext.equals(playing.markExt)) {
+                                    keepPos = i;
+                                    break;
+                                }
+                            }
+                        }
                         cards.set(out);
                         if (keepPos >= out.size()) keepPos = Math.max(0, out.size() - 1);
                         list.jumpTo(keepPos, list.hasFocus());
@@ -286,6 +315,14 @@ public final class BrowseView extends LinearLayout implements Section {
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        Bg.cancel(pick);
+        Bg.cancel(epgLoad);
+        Bg.cancel(reloadSoon);
+        super.onDetachedFromWindow();
+    }
+
     // ---- Kategorien ------------------------------------------------------------
 
     private final class CatAdapter extends RecyclerView.Adapter<CatH> {
@@ -321,14 +358,17 @@ public final class BrowseView extends LinearLayout implements Section {
             l.setLayoutParams(lp);
             final CatH h = new CatH(l);
             h.icon = new ImageView(c);
+            h.icon.setDuplicateParentStateEnabled(true);
             LayoutParams ip = new LayoutParams(Ui.dp(13), Ui.dp(13));
             ip.rightMargin = Ui.dp(8);
             l.addView(h.icon, ip);
             h.name = Ui.line(c, 11.5f, Ui.TEXT, false);
-            h.name.setTextColor(Ui.states(Ui.TEXT, Ui.ACCENT_HOT, Ui.DIM));
+            h.name.setTextColor(Ui.states(Ui.WHITE, Ui.WHITE, Ui.DIM));
             h.name.setDuplicateParentStateEnabled(true);
             l.addView(h.name, new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
             h.count = Ui.line(c, 8.5f, Ui.FAINT, false);
+            h.count.setTextColor(Ui.rowValue(Ui.FAINT));
+            h.count.setDuplicateParentStateEnabled(true);
             h.count.setPadding(Ui.dp(6), 0, 0, 0);
             l.addView(h.count);
             l.setOnClickListener(new View.OnClickListener() {
@@ -369,7 +409,7 @@ public final class BrowseView extends LinearLayout implements Section {
             String ic = Category.FAV.equals(c.ext) ? Ui.I_STAR : Category.RECENT.equals(c.ext) ? Ui.I_CLOCK
                     : Category.NEW.equals(c.ext) ? Ui.I_NEW : Category.ALL.equals(c.ext) ? Ui.I_LIST : null;
             h.icon.setVisibility(ic == null ? GONE : VISIBLE);
-            if (ic != null) h.icon.setImageDrawable(new Ui.PathDrawable(ic, Ui.ACCENT));
+            if (ic != null) h.icon.setImageDrawable(new Ui.PathDrawable(ic, Ui.ACCENT_HOT).tint(Ui.states(Ui.WHITE, Ui.ACCENT_HOT, Ui.ACCENT_HOT)));
             h.itemView.setActivated(current != null && c.ext.equals(current.ext));
         }
     }

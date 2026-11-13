@@ -147,23 +147,41 @@ public final class Ui {
         return new GradientDrawable(o, colors);
     }
 
-    /** Hintergrund fuer Listenzeilen: dunkelrote Flaeche mit rotem Rahmen bei Fokus, dezente Toenung wenn ausgewaehlt. */
+    /**
+     * Hintergrund fuer Listenzeilen. Fokus: kraeftig rote Flaeche mit weisser Kontur,
+     * damit auch aus der Entfernung sofort klar ist, wo man steht. Ausgewaehlt (z. B.
+     * die gerade gezeigte Kategorie): dunkelrote Toenung mit rotem Balken links.
+     */
     public static Drawable rowBg(float radius) {
         StateListDrawable s = new StateListDrawable();
-        GradientDrawable f = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFF5A0D1C, 0xFF3A0B15});
-        f.setCornerRadius(px(radius));
-        f.setStroke(Math.max(1, dp(1.4f)), ACCENT_HOT);
-        s.addState(new int[]{android.R.attr.state_focused}, f);
-        s.addState(new int[]{android.R.attr.state_activated}, rect(0x38DD1A34, radius));
+        s.addState(new int[]{android.R.attr.state_focused}, cloak(radius));
+        GradientDrawable tint = rect(0x33DD1A34, radius);
+        GradientDrawable bar = rect(ACCENT, 2);
+        android.graphics.drawable.LayerDrawable active = new android.graphics.drawable.LayerDrawable(new Drawable[]{tint, bar});
+        active.setLayerGravity(1, Gravity.START | Gravity.FILL_VERTICAL);
+        active.setLayerWidth(1, dp(3));
+        active.setLayerInsetTop(1, dp(7));
+        active.setLayerInsetBottom(1, dp(7));
+        s.addState(new int[]{android.R.attr.state_activated}, active);
         s.addState(new int[]{}, rect(0x00000000, radius));
         return s;
     }
 
+    /** Textfarben fuer Zeilen: weiss bei Fokus (auf Rot), sonst normal. */
+    public static ColorStateList rowText(int normal) {
+        return states(WHITE, WHITE, normal);
+    }
+
+    /** Farbe fuer kleine Werte und Zahlen in Zeilen: weiss bei Fokus, sonst die angegebene Farbe. */
+    public static ColorStateList rowValue(int normal) {
+        return states(WHITE, normal, normal);
+    }
+
     /** Rote Flaeche mit weisser Kontur: das Zeichen fuer "hier ist der Fokus". */
     public static GradientDrawable cloak(float radius) {
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0xFFEA2540, 0xFFB80F27});
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0xFFEE2A44, 0xFFC0122B});
         g.setCornerRadius(px(radius));
-        g.setStroke(Math.max(1, dp(1.3f)), WHITE);
+        g.setStroke(Math.max(2, dp(1.5f)), WHITE);
         return g;
     }
 

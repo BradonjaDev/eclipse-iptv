@@ -132,26 +132,38 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         LinearLayout l = new LinearLayout(c);
         l.setOrientation(LinearLayout.HORIZONTAL);
         l.setGravity(Gravity.CENTER_VERTICAL);
-        l.setBackground(Ui.rowBg(8));
-        l.setPadding(Ui.dp(6), 0, Ui.dp(10), 0);
+        l.setBackground(Ui.rowBg(9));
+        l.setPadding(Ui.dp(6), 0, Ui.dp(12), 0);
         RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(42));
-        lp.bottomMargin = Ui.dp(2);
+        lp.bottomMargin = Ui.dp(3);
         l.setLayoutParams(lp);
         H h = new H(l);
         h.num = Ui.line(c, 9.5f, Ui.FAINT, false);
+        h.num.setTextColor(Ui.rowValue(Ui.FAINT));
+        h.num.setDuplicateParentStateEnabled(true);
         h.num.setGravity(Gravity.END);
         l.addView(h.num, new LinearLayout.LayoutParams(Ui.dp(30), ViewGroup.LayoutParams.WRAP_CONTENT));
         h.image = new ImageView(c);
         h.image.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        h.image.setBackground(Ui.rect(0x14FFFFFF, 5));
+        h.image.setBackground(Ui.rect(0x1FFFFFFF, 5));
         h.image.setPadding(Ui.dp(3), Ui.dp(3), Ui.dp(3), Ui.dp(3));
         LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(Ui.dp(48), Ui.dp(30));
         ip.leftMargin = Ui.dp(8);
         ip.rightMargin = Ui.dp(10);
         l.addView(h.image, ip);
         h.title = Ui.line(c, 12.5f, Ui.TEXT, false);
+        h.title.setTextColor(Ui.rowText(Ui.TEXT));
+        h.title.setDuplicateParentStateEnabled(true);
         l.addView(h.title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        h.star = Ui.icon(c, Ui.I_STAR, Ui.ACCENT);
+        h.sub = Ui.line(c, 7.5f, Ui.WHITE, true);
+        h.sub.setText("LIVE");
+        h.sub.setLetterSpacing(0.1f);
+        h.sub.setBackground(Ui.rect(Ui.ACCENT, 3));
+        h.sub.setPadding(Ui.dp(4), Ui.dp(1.5f), Ui.dp(4), Ui.dp(1.5f));
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bp.rightMargin = Ui.dp(8);
+        l.addView(h.sub, bp);
+        h.star = Ui.icon(c, Ui.I_STAR, Ui.states(Ui.WHITE, Ui.ACCENT_HOT, Ui.ACCENT_HOT));
         l.addView(h.star, new LinearLayout.LayoutParams(Ui.dp(11), Ui.dp(11)));
         return h;
     }
@@ -209,6 +221,10 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         if (style == ROW) {
             h.num.setText(e.item != null && e.item.num > 0 ? String.valueOf(e.item.num) : "");
             h.star.setVisibility(e.fav ? View.VISIBLE : View.INVISIBLE);
+            de.eclipseiptv.data.Playable on = LivePlayer.current();
+            boolean playing = on != null && e.item != null && e.item.kind == Item.LIVE && e.item.ext.equals(on.markExt);
+            h.itemView.setActivated(playing);
+            h.sub.setVisibility(playing ? View.VISIBLE : View.GONE);
             Img.load(h.image, e.image, Ui.dp(48), Ui.dp(30), false);
             return;
         }
