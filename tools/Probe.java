@@ -1,4 +1,4 @@
-import de.umbratv.data.*;
+import de.eclipseiptv.data.*;
 import java.util.*;
 
 /** Entwickler-Werkzeug: liest eine Quelle ein und gibt eine Zusammenfassung aus. Aufruf: Probe <Link> [m3u] */

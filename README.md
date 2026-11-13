@@ -7,9 +7,9 @@
 **IPTV für große Playlists.** Sender, Filme und Serien aus einer M3U-Playlist oder einem
 Xtream-Zugang, übersichtlich sortiert und komplett mit der Fernbedienung bedienbar.
 
-[![Version](https://img.shields.io/github/v/release/BradonjaDev/eclipse-iptv?label=Version&color=ffb84d)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest)
+[![Version](https://img.shields.io/github/v/release/BradonjaDev/eclipse-iptv?label=Version&color=dd1a34)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest)
 [![Build](https://github.com/BradonjaDev/eclipse-iptv/actions/workflows/build.yml/badge.svg)](https://github.com/BradonjaDev/eclipse-iptv/actions/workflows/build.yml)
-[![Download](https://img.shields.io/badge/Download-eclipse--iptv.apk-ffb84d?logo=android&logoColor=white)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest/download/eclipse-iptv.apk)
+[![Download](https://img.shields.io/badge/Download-eclipse--iptv.apk-dd1a34?logo=android&logoColor=white)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest/download/eclipse-iptv.apk)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?logo=android&logoColor=white)
 
 </div>
@@ -89,7 +89,7 @@ Lokal geht es mit JDK 17 und dem Android SDK so:
 ```
 
 Ohne Signaturschlüssel wird die APK mit dem Debug-Schlüssel signiert. Der echte Schlüssel
-liegt in den GitHub-Secrets `UMBRA_KEYSTORE_BASE64` und `UMBRA_KEYSTORE_PASSWORD`.
+liegt in den GitHub-Secrets `ECLIPSE_KEYSTORE_BASE64` und `ECLIPSE_KEYSTORE_PASSWORD`.
 
 `tools/check.sh` prüft den Code in wenigen Sekunden ohne Android SDK (nur Typprüfung, keine APK).
 

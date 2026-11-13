@@ -3,31 +3,31 @@ plugins {
 }
 
 android {
-    namespace 'de.umbratv'
+    namespace 'de.eclipseiptv'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'de.umbratv'
+        applicationId 'de.eclipseiptv'
         minSdk 24
         targetSdk 34
-        versionCode 2
-        versionName '0.1.1'
+        versionCode 3
+        versionName '0.2.0'
     }
 
     // Fester Schluessel, damit sich spaetere Versionen ueber die alte installieren lassen.
-    // Er kommt aus den Umgebungsvariablen UMBRA_KEYSTORE_FILE und UMBRA_KEYSTORE_PASSWORD
+    // Er kommt aus den Umgebungsvariablen ECLIPSE_KEYSTORE_FILE und ECLIPSE_KEYSTORE_PASSWORD
     // (in GitHub Actions aus den Secrets). Fehlen sie, etwa in einem Fork, wird mit dem
     // Debug-Schluessel signiert.
-    def keystoreFile = System.getenv('UMBRA_KEYSTORE_FILE')
-    def keystorePassword = System.getenv('UMBRA_KEYSTORE_PASSWORD')
+    def keystoreFile = System.getenv('ECLIPSE_KEYSTORE_FILE')
+    def keystorePassword = System.getenv('ECLIPSE_KEYSTORE_PASSWORD')
     def hasKey = keystoreFile && keystorePassword && file(keystoreFile).exists()
 
     signingConfigs {
         if (hasKey) {
-            umbra {
+            eclipse {
                 storeFile file(keystoreFile)
                 storePassword keystorePassword
-                keyAlias 'umbra'
+                keyAlias 'eclipse'
                 keyPassword keystorePassword
             }
         }
@@ -36,10 +36,10 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig hasKey ? signingConfigs.umbra : signingConfigs.debug
+            signingConfig hasKey ? signingConfigs.eclipse : signingConfigs.debug
         }
         debug {
-            if (hasKey) signingConfig signingConfigs.umbra
+            if (hasKey) signingConfig signingConfigs.eclipse
         }
     }
 

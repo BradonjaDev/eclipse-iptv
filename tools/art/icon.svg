@@ -1,19 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
   <defs>
-    <radialGradient id="bg" cx="70%" cy="20%" r="95%">
-      <stop offset="0" stop-color="#2a1a10"/><stop offset="0.45" stop-color="#100c18"/><stop offset="1" stop-color="#07060b"/>
-    </radialGradient>
-    <radialGradient id="corona" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#ffe2b0"/><stop offset="0.52" stop-color="#ffb84d"/>
-      <stop offset="0.64" stop-color="#ff7a1a" stop-opacity="0.6"/><stop offset="0.84" stop-color="#ff7a1a" stop-opacity="0.13"/>
-      <stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="rim" cx="72%" cy="22%" r="80%">
-      <stop offset="0" stop-color="#fff4dd"/><stop offset="0.55" stop-color="#ffb84d" stop-opacity="0.35"/><stop offset="1" stop-color="#ffb84d" stop-opacity="0"/>
-    </radialGradient>
+    <radialGradient id="bg" cx="70%" cy="20%" r="95%"><stop offset="0" stop-color="#3a0812"/><stop offset="0.42" stop-color="#12080b"/><stop offset="1" stop-color="#070507"/></radialGradient>
+    <radialGradient id="corona" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd6da"/><stop offset="0.52" stop-color="#ff2b42"/><stop offset="0.63" stop-color="#b00a20" stop-opacity="0.7"/><stop offset="0.84" stop-color="#7e0a1b" stop-opacity="0.16"/><stop offset="1" stop-color="#7e0a1b" stop-opacity="0"/></radialGradient>
   </defs>
-  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
-  <circle cx="96" cy="96" r="78" fill="url(#corona)"/>
-  <circle cx="94" cy="98" r="42" fill="#050409"/>
-  <circle cx="94" cy="98" r="42" fill="none" stroke="url(#rim)" stroke-width="2.6"/>
+  <clipPath id="c"><rect width="192" height="192" rx="40"/></clipPath>
+  <g clip-path="url(#c)">
+  <rect width="192" height="192" fill="url(#bg)"/>
+  <circle cx="96" cy="92" r="80" fill="url(#corona)"/>
+  <circle cx="96" cy="92" r="42" fill="#050304" stroke="#ffffff" stroke-width="2.4"/>
+  <rect x="6.4" y="132.0" width="71.4" height="17.0" rx="8.5" fill="none" stroke="#ffffff" stroke-width="3.2"/><rect x="-14.0" y="145.9" width="108.8" height="17.0" rx="8.5" fill="none" stroke="#ffffff" stroke-width="3.2"/><rect x="21.7" y="159.9" width="61.2" height="17.0" rx="8.5" fill="none" stroke="#ffffff" stroke-width="3.2"/><rect x="6.4" y="132.0" width="71.4" height="17.0" rx="8.5" fill="#b30f27"/><rect x="-14.0" y="145.9" width="108.8" height="17.0" rx="8.5" fill="#b30f27"/><rect x="21.7" y="159.9" width="61.2" height="17.0" rx="8.5" fill="#b30f27"/>
+  <rect x="122.0" y="150.0" width="63.0" height="15.0" rx="7.5" fill="none" stroke="#ffffff" stroke-width="3.0"/><rect x="104.0" y="162.3" width="96.0" height="15.0" rx="7.5" fill="none" stroke="#ffffff" stroke-width="3.0"/><rect x="135.5" y="174.6" width="54.0" height="15.0" rx="7.5" fill="none" stroke="#ffffff" stroke-width="3.0"/><rect x="122.0" y="150.0" width="63.0" height="15.0" rx="7.5" fill="#b30f27"/><rect x="104.0" y="162.3" width="96.0" height="15.0" rx="7.5" fill="#b30f27"/><rect x="135.5" y="174.6" width="54.0" height="15.0" rx="7.5" fill="#b30f27"/>
+  </g>
 </svg>
