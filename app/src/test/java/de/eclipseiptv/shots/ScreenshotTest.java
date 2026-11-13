@@ -82,15 +82,31 @@ public class ScreenshotTest {
         shot(a.getWindow().getDecorView(), name);
     }
 
+    /**
+     * Drueckt eine Taste wie die Fernbedienung. Robolectric reicht Tasten nur an die
+     * Ansichten weiter; das Weiterschieben des Fokus mit den Pfeiltasten macht sonst
+     * Android selbst (ViewRootImpl). Das wird hier genauso nachgebildet: erst die Taste
+     * anbieten, und wenn niemand sie nutzt, focusSearch + requestFocus.
+     */
     private static void press(Activity a, int code) {
-        a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+        View decor = a.getWindow().getDecorView();
+        boolean handled = a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+        int dir = code == KeyEvent.KEYCODE_DPAD_LEFT ? View.FOCUS_LEFT : code == KeyEvent.KEYCODE_DPAD_RIGHT ? View.FOCUS_RIGHT
+                : code == KeyEvent.KEYCODE_DPAD_UP ? View.FOCUS_UP : code == KeyEvent.KEYCODE_DPAD_DOWN ? View.FOCUS_DOWN : 0;
+        if (!handled && dir != 0) {
+            View f = decor.findFocus();
+            if (f != null) {
+                View n = f.focusSearch(dir);
+                if (n != null) n.requestFocus(dir);
+            }
+        }
         a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, code));
         idle(250);
     }
 
     /** Beschreibt, wo der Fokus gerade steht: Klassen der Eltern und der erste Text darin. */
     private static String focus(Activity a) {
-        View f = a.getCurrentFocus();
+        View f = a.getWindow().getDecorView().findFocus();
         if (f == null) return "(kein Fokus)";
         StringBuilder b = new StringBuilder(text(f));
         ViewParent p = f.getParent();
@@ -154,6 +170,7 @@ public class ScreenshotTest {
         ActivityController<MainActivity> mc = Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity main = mc.get();
         idle(1500);
+        note("Touch-Modus: " + main.getWindow().getDecorView().isInTouchMode());
         shot(main, "01-start");
         note("Start: " + focus(main));
 

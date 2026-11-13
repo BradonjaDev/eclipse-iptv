@@ -56,6 +56,8 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     private int current = -1, pending = HOME;
     private boolean setupOpened, wasRunning;
     private long lastBack;
+    /** Hat der Nutzer schon eine Taste gedrueckt? Dann wird sein Fokus nicht mehr ueberschrieben. */
+    private boolean userMoved;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -156,7 +158,11 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     @Override
     public void onWindowFocusChanged(boolean has) {
         super.onWindowFocusChanged(has);
-        if (has) Ui.immersive(this);
+        if (!has) return;
+        Ui.immersive(this);
+        // Hat Android den Fokus beim Start selbst vergeben (erster Knopf), auf den aktuellen Bereich setzen.
+        View f = getCurrentFocus();
+        if (current >= 0 && (f == null || (rail.hasFocus() && f != buttons[current] && !userMoved))) buttons[current].requestFocus();
     }
 
     // ---- Bereiche --------------------------------------------------------------
@@ -263,6 +269,7 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
+        if (e.getAction() == KeyEvent.ACTION_DOWN) userMoved = true;
         if (e.getAction() == KeyEvent.ACTION_DOWN && e.getKeyCode() == KeyEvent.KEYCODE_SEARCH && current >= 0) {
             switchTo(SEARCH);
             content.requestFocus();
