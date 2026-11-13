@@ -133,6 +133,14 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         if (current < 0) {
             switchTo(pending);
             buttons[current].requestFocus();
+            // Android vergibt beim ersten Aufbau manchmal selbst den Fokus (an den ersten Knopf).
+            rail.post(new Runnable() {
+                @Override
+                public void run() {
+                    View f = getCurrentFocus();
+                    if (!userMoved && (f == null || rail.hasFocus()) && current >= 0 && f != buttons[current]) buttons[current].requestFocus();
+                }
+            });
         } else if (before != source.id) {
             invalidate();
         } else {

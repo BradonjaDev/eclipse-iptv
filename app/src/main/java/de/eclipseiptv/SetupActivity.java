@@ -289,6 +289,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         r.setFocusable(true);
         r.setClickable(true);
         LinearLayout texts = new LinearLayout(this);
+        texts.setDuplicateParentStateEnabled(true);
         texts.setOrientation(LinearLayout.VERTICAL);
         TextView n = Ui.line(this, 13f, Ui.TEXT, false);
         n.setTextColor(Ui.rowText(Ui.TEXT));

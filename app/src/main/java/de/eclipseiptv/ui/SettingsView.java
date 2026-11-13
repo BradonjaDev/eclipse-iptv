@@ -166,6 +166,7 @@ public final class SettingsView extends ScrollView implements Section {
         r.setFocusable(true);
         r.setClickable(action != null);
         LinearLayout texts = new LinearLayout(c);
+        texts.setDuplicateParentStateEnabled(true);
         texts.setOrientation(LinearLayout.VERTICAL);
         TextView t = Ui.line(c, 13f, Ui.TEXT, false);
         t.setTextColor(Ui.rowText(Ui.TEXT));

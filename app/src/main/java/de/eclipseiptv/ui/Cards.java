@@ -179,6 +179,7 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         H h = new H(l);
 
         FrameLayout box = new FrameLayout(c);
+        box.setDuplicateParentStateEnabled(true);
         box.setBackground(Ui.rect(Ui.SURFACE2, 7));
         Ui.round(box, 7);
         h.fallback = Ui.text(c, poster ? 10f : 10.5f, Ui.DIM, true);

@@ -563,6 +563,7 @@ public final class DetailActivity extends Activity {
             h.c.setGravity(Gravity.CENTER);
             l.addView(h.c, new LinearLayout.LayoutParams(Ui.dp(40), ViewGroup.LayoutParams.WRAP_CONTENT));
             LinearLayout texts = new LinearLayout(c);
+            texts.setDuplicateParentStateEnabled(true);
             texts.setOrientation(LinearLayout.VERTICAL);
             h.a = Ui.line(c, 12.5f, Ui.TEXT, false);
             h.a.setTextColor(Ui.rowText(Ui.TEXT));

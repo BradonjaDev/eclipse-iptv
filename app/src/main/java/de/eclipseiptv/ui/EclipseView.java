@@ -57,15 +57,17 @@ public final class EclipseView extends View {
                 r = b.height() * place[2];
             }
             if (r <= 0) return;
-            int a = Math.round(255 * intensity);
+            // Bei gedaempfter Darstellung bleibt das rote Leuchten kraeftiger als der weisse Ring.
+            int a = Math.round(255 * Math.min(1f, intensity * 1.7f));
             glow.setShader(new RadialGradient(cx, cy, r, new int[]{0xFFFFD6DA, 0xFFFF2B42, 0xB0B00A20, 0x307E0A1B, 0x007E0A1B},
                     new float[]{0f, 0.52f, 0.62f, 0.82f, 1f}, Shader.TileMode.CLAMP));
             glow.setAlpha(a);
             rim.setStrokeWidth(Math.max(1f, r * 0.03f));
-            rim.setAlpha(Math.round(a * 0.95f));
+            rim.setAlpha(Math.round(255 * Math.min(1f, intensity * intensity * 1.4f)));
+            disc.setAlpha(Math.round(255 * Math.min(1f, intensity * 2.4f)));
             float sx = cx + r * 0.38f, sy = cy - r * 0.38f, sr = r * 0.16f;
             spark.setShader(new RadialGradient(sx, sy, sr, new int[]{0xFFFFFFFF, 0x99FFE4E8, 0x00FFFFFF}, new float[]{0f, 0.25f, 1f}, Shader.TileMode.CLAMP));
-            spark.setAlpha(a);
+            spark.setAlpha(Math.round(255 * Math.min(1f, intensity * 1.2f)));
         }
 
         @Override
