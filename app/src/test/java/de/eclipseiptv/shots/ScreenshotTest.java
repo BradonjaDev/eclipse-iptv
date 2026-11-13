@@ -279,7 +279,41 @@ public class ScreenshotTest {
             for (StackTraceElement e : t.getStackTrace()) if (e.getClassName().startsWith("de.eclipseiptv")) note("   at " + e);
         }
 
-        Dialog d = ShadowDialog.getLatestDialog();
-        if (d != null && d.isShowing()) shot(d.getWindow().getDecorView(), "14-dialog");
+        // Suche
+        try {
+            for (int i = 0; i < 4; i++) press(main, KeyEvent.KEYCODE_DPAD_LEFT);
+            for (int i = 0; i < 6; i++) press(main, KeyEvent.KEYCODE_DPAD_UP);
+            idle(600);
+            press(main, KeyEvent.KEYCODE_DPAD_RIGHT);
+            View f = main.getWindow().getDecorView().findFocus();
+            note("Suche: " + focus(main));
+            if (f instanceof android.widget.EditText) ((android.widget.EditText) f).setText("de");
+            idle(1500);
+            shot(main, "14-suche");
+        } catch (Throwable t) {
+            note("Suche: " + t);
+        }
+        mc.pause().stop();
+
+        // Film im Player mit Steuerleiste und Optionen
+        try {
+            Item movie = db.item(id, Item.VOD, "5000");
+            List<Playable> q = new ArrayList<>();
+            Playable p = Playable.movie(s, movie);
+            p.startPos = 0;
+            q.add(p);
+            PlayQueue.set(s, q, 0, "");
+            ActivityController<PlayerActivity> vc = Robolectric.buildActivity(PlayerActivity.class).setup();
+            idle(800);
+            shot(vc.get(), "15-film-player");
+            press(vc.get(), KeyEvent.KEYCODE_DPAD_DOWN);
+            idle(600);
+            Dialog d = ShadowDialog.getLatestDialog();
+            if (d != null && d.isShowing()) shot(d.getWindow().getDecorView(), "16-optionen-fenster");
+            else note("Kein Optionsfenster");
+            vc.pause().stop().destroy();
+        } catch (Throwable t) {
+            note("Film-Player: " + t);
+        }
     }
 }

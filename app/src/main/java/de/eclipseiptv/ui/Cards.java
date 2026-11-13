@@ -95,7 +95,7 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
 
     static final class H extends RecyclerView.ViewHolder {
         TextView num, title, sub, fallback;
-        ImageView image, star;
+        ImageView image, star, badge;
         View progress;
 
         H(View v) {
@@ -195,6 +195,13 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         h.progress.setBackgroundColor(Ui.ACCENT);
         FrameLayout.LayoutParams pp = new FrameLayout.LayoutParams(0, Ui.dp(3), Gravity.BOTTOM | Gravity.START);
         box.addView(h.progress, pp);
+        h.badge = new ImageView(c);
+        h.badge.setImageDrawable(new Ui.PathDrawable(Ui.I_STAR, Ui.WHITE));
+        h.badge.setBackground(Ui.outline(Ui.ACCENT, 20, Ui.WHITE, 1f));
+        h.badge.setPadding(Ui.dp(3.5f), Ui.dp(3.5f), Ui.dp(3.5f), Ui.dp(3.5f));
+        FrameLayout.LayoutParams sb = new FrameLayout.LayoutParams(Ui.dp(20), Ui.dp(20), Gravity.TOP | Gravity.END);
+        sb.topMargin = sb.rightMargin = Ui.dp(5);
+        box.addView(h.badge, sb);
         View frame = new View(c);
         frame.setBackground(Ui.frame(7));
         frame.setDuplicateParentStateEnabled(true);
@@ -232,8 +239,8 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         boolean poster = style == POSTER;
         int iw = Ui.dp(cell) - 2 * Ui.dp(5), ih = poster ? Math.round(iw * 1.5f) : Math.round(iw * 9f / 16f);
         h.fallback.setText(e.title);
-        h.sub.setText(e.fav ? (e.sub.isEmpty() ? "★ Favorit" : "★  " + e.sub) : e.sub);
-        h.sub.setTextColor(e.fav ? Ui.ACCENT_HOT : Ui.FAINT);
+        h.sub.setText(e.sub);
+        h.badge.setVisibility(e.fav ? View.VISIBLE : View.GONE);
         ViewGroup.LayoutParams pp = h.progress.getLayoutParams();
         pp.width = e.progress > 0 ? Math.max(Ui.dp(3), iw * Math.min(100, e.progress) / 100) : 0;
         h.progress.setLayoutParams(pp);

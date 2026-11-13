@@ -228,8 +228,8 @@ public final class FakeXtream {
         Canvas g = new Canvas(bmp);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         if (logo) {
-            String[] labels = {"ARD", "ZDF", "RTL", "SAT1", "PRO7", "VOX", "K1", "RTL2", "3sat", "arte", "neo", "ONE"};
-            String label = labels[Integer.parseInt(key.substring(5)) % labels.length];
+            String[] labels = {"ARD", "ZDF", "RTL", "SAT1", "PRO7", "VOX", "K1", "RTL2", "3sat", "arte", "neo", "ONE", "WDR", "NDR", "BR", "SWR", "MDR", "hr", "rbb", "phx", "ts24", "CC", "DMAX", "TLC", "sixx"};
+            String label = labels[(Integer.parseInt(key.substring(5)) - 1 + labels.length) % labels.length];
             p.setColor(0xEEFFFFFF);
             p.setTextSize(54);
             p.setTypeface(Typeface.DEFAULT_BOLD);

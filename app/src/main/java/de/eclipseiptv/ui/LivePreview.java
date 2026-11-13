@@ -123,7 +123,8 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         Bg.cancel(retry);
         if (player != null) {
             player.removeListener(this);
-            player.clearVideoTextureView(texture);
+            // Nur wenn der Player noch lebt (er wird freigegeben, sobald die App in den Hintergrund geht)
+            if (player == LivePlayer.peek()) player.clearVideoTextureView(texture);
         }
         player = null;
     }
