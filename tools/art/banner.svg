@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <defs>
+    <radialGradient id="bg" cx="24%" cy="50%" r="90%">
+      <stop offset="0" stop-color="#2b1a0e"/><stop offset="0.4" stop-color="#110d19"/><stop offset="1" stop-color="#07060b"/>
+    </radialGradient>
+    <radialGradient id="corona" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffe2b0"/><stop offset="0.52" stop-color="#ffb84d"/>
+      <stop offset="0.64" stop-color="#ff7a1a" stop-opacity="0.6"/><stop offset="0.84" stop-color="#ff7a1a" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rim" cx="72%" cy="22%" r="80%">
+      <stop offset="0" stop-color="#fff4dd"/><stop offset="0.55" stop-color="#ffb84d" stop-opacity="0.35"/><stop offset="1" stop-color="#ffb84d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#bg)"/>
+  <circle cx="170" cy="180" r="128" fill="url(#corona)"/>
+  <circle cx="167" cy="183" r="69" fill="#050409"/>
+  <circle cx="167" cy="183" r="69" fill="none" stroke="url(#rim)" stroke-width="4"/>
+  <text x="318" y="204" font-family="Noto Sans, Liberation Sans, sans-serif" font-weight="600" font-size="86" fill="#f5f2ea" letter-spacing="1">Umbra</text>
+  <text x="322" y="246" font-family="Noto Sans, Liberation Sans, sans-serif" font-size="25" fill="#ffb84d" letter-spacing="7">IPTV</text>
+</svg>

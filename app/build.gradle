@@ -1,0 +1,70 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'de.umbratv'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'de.umbratv'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    // Fester Schluessel, damit sich spaetere Versionen ueber die alte installieren lassen.
+    // Er kommt aus den Umgebungsvariablen UMBRA_KEYSTORE_FILE und UMBRA_KEYSTORE_PASSWORD
+    // (in GitHub Actions aus den Secrets). Fehlen sie, etwa in einem Fork, wird mit dem
+    // Debug-Schluessel signiert.
+    def keystoreFile = System.getenv('UMBRA_KEYSTORE_FILE')
+    def keystorePassword = System.getenv('UMBRA_KEYSTORE_PASSWORD')
+    def hasKey = keystoreFile && keystorePassword && file(keystoreFile).exists()
+
+    signingConfigs {
+        if (hasKey) {
+            umbra {
+                storeFile file(keystoreFile)
+                storePassword keystorePassword
+                keyAlias 'umbra'
+                keyPassword keystorePassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig hasKey ? signingConfigs.umbra : signingConfigs.debug
+        }
+        debug {
+            if (hasKey) signingConfig signingConfigs.umbra
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    def media3 = '1.9.0'
+    implementation "androidx.media3:media3-exoplayer:$media3"
+    implementation "androidx.media3:media3-exoplayer-hls:$media3"
+    implementation "androidx.media3:media3-exoplayer-dash:$media3"
+    implementation "androidx.media3:media3-ui:$media3"
+    // Software-Dekoder fuer Tonformate, die viele TV-Boxen nicht selbst koennen (AC3, E-AC3, DTS, TrueHD)
+    implementation "org.jellyfin.media3:media3-ffmpeg-decoder:$media3+1"
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    implementation 'com.google.zxing:core:3.5.3'
+
+    testImplementation 'junit:junit:4.13.2'
+}

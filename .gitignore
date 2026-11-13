@@ -1,0 +1,16 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+out/
+
+# Signaturschluessel und Zugangsdaten nie einchecken
+*.keystore
+*.jks
+*.m3u
+*.m3u8
+secrets*
