@@ -189,7 +189,7 @@ final class SetupServer {
     }
 
     private static final String PAGE = "<!doctype html><html lang=de><head><meta charset=utf-8>"
-            + "<meta name=viewport content='width=device-width,initial-scale=1'><title>Umbra einrichten</title><style>"
+            + "<meta name=viewport content='width=device-width,initial-scale=1'><title>Eclipse IPTV einrichten</title><style>"
             + "*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Roboto,sans-serif;background:#07060b;color:#f5f2ea;"
             + "background-image:radial-gradient(circle at 85% -10%,rgba(255,154,46,.28),transparent 55%);min-height:100vh}"
             + "main{max-width:520px;margin:0 auto;padding:28px 18px 60px}"
@@ -203,7 +203,7 @@ final class SetupServer {
             + ".go{width:100%;margin-top:22px;padding:15px;border:0;border-radius:14px;background:#ffb84d;color:#1b1204;font-size:17px;font-weight:600}"
             + ".go:disabled{opacity:.5}#msg{margin-top:18px;padding:14px;border-radius:12px;background:#121019;border:1px solid #2b273b;display:none;line-height:1.5}"
             + "#msg.err{border-color:#ff6b6b;color:#ffb3b3}#msg.ok{border-color:#ffb84d;color:#ffdda6}.hide{display:none}"
-            + "</style></head><body><main><div class=sun></div><h1>Umbra einrichten</h1>"
+            + "</style></head><body><main><div class=sun></div><h1>Eclipse IPTV einrichten</h1>"
             + "<p>Trage hier deine Playlist ein. Der Fernseher lädt sie danach von selbst.</p>"
             + "<div class=tabs><button id=t1 class=on type=button>M3U-Link</button><button id=t2 type=button>Xtream-Zugang</button></div>"
             + "<form id=f><div id=p1><label>Link zur Playlist</label><textarea name=url placeholder='http://…' autocapitalize=off autocorrect=off spellcheck=false></textarea></div>"

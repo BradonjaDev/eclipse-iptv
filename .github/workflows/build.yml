@@ -48,8 +48,8 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.UMBRA_KEYSTORE_PASSWORD }}
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/umbra-tv.keystore"
-            echo "UMBRA_KEYSTORE_FILE=$RUNNER_TEMP/umbra-tv.keystore" >> "$GITHUB_ENV"
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/eclipse-iptv.keystore"
+            echo "UMBRA_KEYSTORE_FILE=$RUNNER_TEMP/eclipse-iptv.keystore" >> "$GITHUB_ENV"
             echo "UMBRA_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
           else
             echo "::warning::Kein Signaturschluessel hinterlegt, es wird mit dem Debug-Schluessel signiert."
@@ -61,14 +61,14 @@ jobs:
           ./gradlew --no-daemon assembleRelease
           APK="$(find app/build/outputs/apk/release -name '*.apk' | head -n 1)"
           [ -n "$APK" ] || { echo "::error::Es wurde keine APK erzeugt."; exit 1; }
-          cp "$APK" umbra-tv.apk
-          cp "$APK" "umbra-tv-$VERSION.apk"
-          ls -l umbra-tv*.apk
+          cp "$APK" eclipse-iptv.apk
+          cp "$APK" "eclipse-iptv-$VERSION.apk"
+          ls -l eclipse-iptv*.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: umbra-tv-${{ env.VERSION }}
-          path: umbra-tv-${{ env.VERSION }}.apk
+          name: eclipse-iptv-${{ env.VERSION }}
+          path: eclipse-iptv-${{ env.VERSION }}.apk
 
       - name: Release erstellen (nur bei neuer Version)
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -91,15 +91,15 @@ jobs:
             echo
             echo "## Installieren"
             echo
-            echo "\`umbra-tv.apk\` herunterladen und auf dem TV-Stick installieren, am einfachsten mit der App **Downloader**."
+            echo "\`eclipse-iptv.apk\` herunterladen und auf dem TV-Stick installieren, am einfachsten mit der App **Downloader**."
             echo "Eine neue Version laesst sich einfach ueber die alte installieren, die Einstellungen bleiben erhalten."
             echo
             echo "Fester Download-Link fuer die jeweils neueste Version:"
-            echo "\`https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/umbra-tv.apk\`"
+            echo "\`https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/eclipse-iptv.apk\`"
           } > notes.md
           cat notes.md
-          gh release create "$TAG" umbra-tv.apk "umbra-tv-$VERSION.apk" \
+          gh release create "$TAG" eclipse-iptv.apk "eclipse-iptv-$VERSION.apk" \
             --target "$GITHUB_SHA" \
-            --title "Umbra $VERSION" \
+            --title "Eclipse IPTV $VERSION" \
             --notes-file notes.md \
             --latest

@@ -142,7 +142,7 @@ public final class SettingsView extends ScrollView implements Section {
             version = c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionName;
         } catch (Exception ignored) {
         }
-        row("Umbra " + version, "IPTV-Player für große Playlists. Die App bringt keine Inhalte mit.", null, null);
+        row("Eclipse IPTV " + version, "IPTV-Player für große Playlists. Die App bringt keine Inhalte mit.", null, null);
 
         if (focusIndex >= 0 && focusIndex < box.getChildCount()) box.getChildAt(focusIndex).requestFocus();
     }

@@ -1,23 +1,23 @@
 <div align="center">
 
-<img src="app/src/main/res/drawable-xhdpi/banner.png" alt="Umbra" width="360">
+<img src="app/src/main/res/drawable-xhdpi/banner.png" alt="Eclipse IPTV" width="360">
 
-# Umbra
+# Eclipse IPTV
 
 **IPTV für große Playlists.** Sender, Filme und Serien aus einer M3U-Playlist oder einem
 Xtream-Zugang, übersichtlich sortiert und komplett mit der Fernbedienung bedienbar.
 
-[![Version](https://img.shields.io/github/v/release/BradonjaDev/umbra-tv?label=Version&color=ffb84d)](https://github.com/BradonjaDev/umbra-tv/releases/latest)
-[![Build](https://github.com/BradonjaDev/umbra-tv/actions/workflows/build.yml/badge.svg)](https://github.com/BradonjaDev/umbra-tv/actions/workflows/build.yml)
-[![Download](https://img.shields.io/badge/Download-umbra--tv.apk-ffb84d?logo=android&logoColor=white)](https://github.com/BradonjaDev/umbra-tv/releases/latest/download/umbra-tv.apk)
+[![Version](https://img.shields.io/github/v/release/BradonjaDev/eclipse-iptv?label=Version&color=ffb84d)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest)
+[![Build](https://github.com/BradonjaDev/eclipse-iptv/actions/workflows/build.yml/badge.svg)](https://github.com/BradonjaDev/eclipse-iptv/actions/workflows/build.yml)
+[![Download](https://img.shields.io/badge/Download-eclipse--iptv.apk-ffb84d?logo=android&logoColor=white)](https://github.com/BradonjaDev/eclipse-iptv/releases/latest/download/eclipse-iptv.apk)
 ![Android](https://img.shields.io/badge/Android-7.0%2B-3ddc84?logo=android&logoColor=white)
 
 </div>
 
 ---
 
-Umbra ist aus [Oma TV](https://github.com/BradonjaDev/oma-tv) hervorgegangen. Oma TV zeigt
-bewusst nur eine Handvoll Sender; Umbra ist das Gegenstück für Playlists mit zehntausenden
+Eclipse IPTV ist aus [Oma TV](https://github.com/BradonjaDev/oma-tv) hervorgegangen. Oma TV zeigt
+bewusst nur eine Handvoll Sender; Eclipse IPTV ist das Gegenstück für Playlists mit zehntausenden
 Einträgen.
 
 ## Was die App kann
@@ -39,15 +39,15 @@ Einträgen.
 Die aktuelle Version liegt immer hier:
 
 ```
-https://github.com/BradonjaDev/umbra-tv/releases/latest/download/umbra-tv.apk
+https://github.com/BradonjaDev/eclipse-iptv/releases/latest/download/eclipse-iptv.apk
 ```
 
 Auf dem TV-Stick am einfachsten mit der App **Downloader**: Adresse eintippen, installieren, fertig.
-Ältere Versionen und die Änderungen stehen unter [Releases](https://github.com/BradonjaDev/umbra-tv/releases).
+Ältere Versionen und die Änderungen stehen unter [Releases](https://github.com/BradonjaDev/eclipse-iptv/releases).
 
 ## Einrichten
 
-Beim ersten Start zeigt Umbra einen QR-Code und eine Adresse wie `192.168.178.50:8080`.
+Beim ersten Start zeigt Eclipse IPTV einen QR-Code und eine Adresse wie `192.168.178.50:8080`.
 
 1. Handy ins selbe WLAN bringen, QR-Code scannen oder die Adresse im Browser öffnen.
 2. M3U-Link einfügen oder die Xtream-Zugangsdaten eintragen und auf **Playlist laden** tippen.
@@ -80,7 +80,7 @@ Es ist kein Android Studio nötig. GitHub Actions baut die APK bei jedem Push un
 
 **Neue Version veröffentlichen:** in `app/build.gradle` `versionCode` um 1 und `versionName`
 erhöhen und auf `main` pushen. Der Workflow setzt dann den Tag `v<version>` genau auf diesen
-Commit und erstellt den Release mit `umbra-tv.apk`. Pushes ohne neue Versionsnummer werden nur gebaut.
+Commit und erstellt den Release mit `eclipse-iptv.apk`. Pushes ohne neue Versionsnummer werden nur gebaut.
 
 Lokal geht es mit JDK 17 und dem Android SDK so:
 
@@ -111,6 +111,6 @@ Java ohne Kotlin, Oberfläche komplett im Code, Media3/ExoPlayer 1.9, ab Android
 
 ## Gut zu wissen
 
-- Umbra bringt **keine Inhalte mit** und ist an keinen Anbieter gebunden. Verwende nur Playlists, deren Inhalte du nutzen darfst. Frei zugängliche Sender sammelt zum Beispiel [iptv-org/iptv](https://github.com/iptv-org/iptv).
+- Eclipse IPTV bringt **keine Inhalte mit** und ist an keinen Anbieter gebunden. Verwende nur Playlists, deren Inhalte du nutzen darfst. Frei zugängliche Sender sammelt zum Beispiel [iptv-org/iptv](https://github.com/iptv-org/iptv).
 - Zugangsdaten bleiben auf dem Gerät. Sie werden nur an den Server der eingetragenen Playlist geschickt.
 - Die Einrichtungsseite ist nur erreichbar, solange der Einrichtungsbildschirm offen ist.

@@ -41,7 +41,7 @@ public final class HomeView extends FrameLayout implements Section {
         LinearLayout names = new LinearLayout(c);
         names.setOrientation(LinearLayout.VERTICAL);
         TextView brand = Ui.line(c, 25f, Ui.TEXT, true);
-        brand.setText("Umbra");
+        brand.setText("Eclipse IPTV");
         brand.setLetterSpacing(0.02f);
         names.addView(brand);
         summary = Ui.line(c, 10.5f, Ui.DIM, false);

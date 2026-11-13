@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'umbra-tv'
+rootProject.name = 'eclipse-iptv'
 include ':app'

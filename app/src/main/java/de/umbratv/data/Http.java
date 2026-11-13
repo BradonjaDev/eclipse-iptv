@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
 public final class Http {
-    public static final String UA = "Umbra/1.0 (Android)";
+    public static final String UA = "EclipseIPTV/1.0 (Android)";
 
     private Http() {
     }
