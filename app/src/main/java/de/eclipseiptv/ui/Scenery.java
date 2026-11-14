@@ -246,16 +246,16 @@ public final class Scenery extends View {
 
     private static void haze(Canvas c, int w, int h, float u, Random r) {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        float[][] bands = {{0.10f, 70, 0.75f, 0x33}, {0.34f, 46, 0.55f, 0x26}, {0.58f, 90, 0.90f, 0x40}, {0.84f, 60, 0.70f, 0x30}};
+        float[][] bands = {{0.12f, 54, 0.70f, 0x8C}, {0.36f, 34, 0.50f, 0x66}, {0.60f, 70, 0.85f, 0xA6}, {0.86f, 46, 0.65f, 0x80}};
         for (float[] b : bands) {
             float y = h * b[0], th = b[1] * u, len = w * b[2];
             float x = r.nextFloat() * (w - len * 0.6f) - len * 0.2f;
-            p.setMaskFilter(new BlurMaskFilter(th * 0.45f, BlurMaskFilter.Blur.NORMAL));
+            p.setMaskFilter(new BlurMaskFilter(th * 0.32f, BlurMaskFilter.Blur.NORMAL));
             p.setShader(new LinearGradient(x, 0, x + len, 0, new int[]{0x00B3112A, ((int) b[3] << 24) | 0xC8152F, 0x00B3112A}, null, Shader.TileMode.CLAMP));
             c.drawRoundRect(new RectF(x, y, x + len, y + th), th / 2, th / 2, p);
             // Heller Saum oben
             p.setMaskFilter(new BlurMaskFilter(2 * u, BlurMaskFilter.Blur.NORMAL));
-            p.setShader(new LinearGradient(x, 0, x + len, 0, new int[]{0x00FFFFFF, 0x26FFFFFF, 0x00FFFFFF}, null, Shader.TileMode.CLAMP));
+            p.setShader(new LinearGradient(x, 0, x + len, 0, new int[]{0x00FFFFFF, 0x59FFFFFF, 0x00FFFFFF}, null, Shader.TileMode.CLAMP));
             c.drawRect(x + len * 0.1f, y + th * 0.18f, x + len * 0.9f, y + th * 0.18f + 1.2f * u, p);
         }
         p.setMaskFilter(null);
