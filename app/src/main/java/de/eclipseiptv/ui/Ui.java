@@ -70,7 +70,9 @@ public final class Ui {
         scale = Math.min(screenW / 960f, screenH / 540f);
         Window w = a.getWindow();
         w.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(BG));
+        // Kein Fenster-Hintergrund: jede Ansicht malt ihren eigenen, deckenden Hintergrund.
+        // Das spart pro Bild einen ganzen Zeichenschritt ueber den gesamten Bildschirm.
+        w.setBackgroundDrawable(null);
         immersive(a);
     }
 

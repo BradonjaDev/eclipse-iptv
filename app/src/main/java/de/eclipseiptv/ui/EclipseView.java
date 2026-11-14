@@ -11,7 +11,7 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-/** Das Zeichen der App: eine Finsternis mit rotem Lichtkranz, weisser Kontur und einem hellen Funken. */
+/** Das Zeichen der App: eine Finsternis mit rotem Lichtkranz und weisser Kontur. */
 public final class EclipseView extends View {
     public EclipseView(Context c) {
         super(c);
@@ -26,7 +26,6 @@ public final class EclipseView extends View {
         private final Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint disc = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint rim = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private final Paint spark = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final float intensity;
         private float cx, cy, r;
         /** Mittelpunkt und Radius relativ zur Flaeche; null = zentriert und ausgefuellt. */
@@ -65,9 +64,6 @@ public final class EclipseView extends View {
             rim.setStrokeWidth(Math.max(1f, r * 0.03f));
             rim.setAlpha(Math.round(255 * Math.min(1f, intensity * intensity * 1.4f)));
             disc.setAlpha(Math.round(255 * Math.min(1f, intensity * 2.4f)));
-            float sx = cx + r * 0.38f, sy = cy - r * 0.38f, sr = r * 0.16f;
-            spark.setShader(new RadialGradient(sx, sy, sr, new int[]{0xFFFFFFFF, 0x99FFE4E8, 0x00FFFFFF}, new float[]{0f, 0.25f, 1f}, Shader.TileMode.CLAMP));
-            spark.setAlpha(Math.round(255 * Math.min(1f, intensity * 1.2f)));
         }
 
         @Override
@@ -76,7 +72,6 @@ public final class EclipseView extends View {
             c.drawCircle(cx, cy, r, glow);
             c.drawCircle(cx, cy, r * 0.54f, disc);
             c.drawCircle(cx, cy, r * 0.54f, rim);
-            c.drawCircle(cx + r * 0.38f, cy - r * 0.38f, r * 0.16f, spark);
         }
 
         @Override

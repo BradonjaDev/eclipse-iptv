@@ -349,13 +349,6 @@ public final class PlayerActivity extends Activity implements Player.Listener {
     }
 
     @Override
-    protected void onPause() {
-        // Beim Zurueckgehen die Bildflaeche sofort abgeben, damit die Vorschau sie uebernehmen kann.
-        if (isFinishing() && live && player != null) video.setPlayer(null);
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         Ui.immersive(this);

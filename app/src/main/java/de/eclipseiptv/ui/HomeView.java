@@ -38,11 +38,12 @@ public final class HomeView extends FrameLayout implements Section {
         // Kopf: grosse Finsternis mit Wolken davor, daneben der Name, rechts die Uhr
         FrameLayout hero = new FrameLayout(c);
         hero.setClipChildren(false);
-        View back = Clouds.view(c, true, 0.9f, 22000, 6);
-        hero.addView(back, at(Ui.dp(4), Ui.dp(20), Ui.dp(22 * Clouds.RATIO), Ui.dp(22)));
+        View back = new Clouds.CloudView(c, true).drift(15000, 6, 2);
+        back.setAlpha(0.9f);
+        hero.addView(back, at(Ui.dp(2), Ui.dp(16), Ui.dp(26 * Clouds.RATIO), Ui.dp(26)));
         hero.addView(new EclipseView(c), at(Ui.dp(16), Ui.dp(14), Ui.dp(104), Ui.dp(104)));
-        View front = Clouds.view(c, false, 1f, 18000, 8);
-        hero.addView(front, at(Ui.dp(60), Ui.dp(86), Ui.dp(30 * Clouds.RATIO), Ui.dp(30)));
+        View front = new Clouds.CloudView(c, false).drift(12000, 7, 2);
+        hero.addView(front, at(Ui.dp(56), Ui.dp(82), Ui.dp(36 * Clouds.RATIO), Ui.dp(36)));
 
         LinearLayout names = new LinearLayout(c);
         names.setOrientation(LinearLayout.VERTICAL);

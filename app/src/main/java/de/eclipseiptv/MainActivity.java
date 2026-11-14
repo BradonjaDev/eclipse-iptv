@@ -81,15 +81,9 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         if (state != null) pending = state.getInt("section", HOME);
     }
 
-    /** Schwarzer Hintergrund mit rotem Mondlicht aus der oberen Ecke. Die Wolken liegen als eigene Ebene darueber. */
+    /** Schwarzer Hintergrund mit rotem Mondlicht; die Wolken liegen als eigene Ebene darueber. */
     public static Drawable backdrop() {
-        GradientDrawable glow = new GradientDrawable();
-        glow.setGradientType(GradientDrawable.RADIAL_GRADIENT);
-        glow.setColors(new int[]{0x4DC20E26, 0x187E0A1B, 0x00000000});
-        glow.setGradientCenter(0.92f, -0.1f);
-        glow.setGradientRadius(Ui.px(540));
-        GradientDrawable base = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFF0C070A, Ui.BG, 0xFF040304});
-        return new LayerDrawable(new Drawable[]{base, glow});
+        return new de.eclipseiptv.ui.Backdrop();
     }
 
     @Override

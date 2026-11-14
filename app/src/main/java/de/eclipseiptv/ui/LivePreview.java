@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
-import android.view.TextureView;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -29,9 +29,14 @@ import de.eclipseiptv.data.Text;
 /**
  * Kleines Bild neben der Senderliste. Kommt man aus dem Vollbild zurueck, laeuft der
  * Sender hier weiter, ohne neu zu laden.
+ *
+ * Das Video laeuft ueber eine SurfaceView: Der Decoder liefert die Bilder direkt an die
+ * Grafik-Hardware, die sie selbst ins Bild setzt. Die App zeichnet dafuer nichts neu, und
+ * Animationen oder Blaettern in der Liste koennen das Video nicht ausbremsen. (Eine
+ * TextureView wuerde jedes Videobild durch die Oberflaeche der App schleusen.)
  */
 public final class LivePreview extends FrameLayout implements Player.Listener {
-    private final TextureView texture;
+    private final SurfaceView surface;
     private final View placeholder, overlay;
     private final TextView name, now, hint, badge;
     private final ProgressBar spinner;
@@ -43,11 +48,10 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
     public LivePreview(Context c) {
         super(c);
         setBackgroundColor(0xFF000000);
-        Ui.round(this, 12);
         setFocusable(false);
 
-        texture = new TextureView(c);
-        addView(texture, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+        surface = new SurfaceView(c);
+        addView(surface, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
         LinearLayout ph = new LinearLayout(c);
         ph.setOrientation(LinearLayout.VERTICAL);
@@ -94,7 +98,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         addView(spinner, new LayoutParams(Ui.dp(26), Ui.dp(26), Gravity.CENTER));
 
         View frame = new View(c);
-        frame.setBackground(Ui.outline(0x00000000, 12, 0x40FFFFFF, 0.8f));
+        frame.setBackground(Ui.outline(0x00000000, 2, 0x4DFFFFFF, 0.8f));
         addView(frame, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         show();
     }
@@ -108,11 +112,11 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
             player = p;
             if (player != null) {
                 player.addListener(this);
-                player.setVideoTextureView(texture);
+                player.setVideoSurfaceView(surface);
                 fit(player.getVideoSize());
             }
         } else if (player != null) {
-            player.setVideoTextureView(texture);
+            player.setVideoSurfaceView(surface);
         }
         retries = 0;
         triedAlt = false;
@@ -124,7 +128,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         if (player != null) {
             player.removeListener(this);
             // Nur wenn der Player noch lebt (er wird freigegeben, sobald die App in den Hintergrund geht)
-            if (player == LivePlayer.peek()) player.clearVideoTextureView(texture);
+            if (player == LivePlayer.peek()) player.clearVideoSurfaceView(surface);
         }
         player = null;
     }
@@ -161,18 +165,22 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         int w = getWidth(), h = getHeight();
         if (v == null || v.width <= 0 || v.height <= 0 || w <= 0 || h <= 0) return;
         float ratio = v.width * v.pixelWidthHeightRatio / v.height, box = w / (float) h;
-        LayoutParams lp = (LayoutParams) texture.getLayoutParams();
+        int nw, nh;
         if (Math.abs(ratio - box) < 0.02f) {
-            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            nw = ViewGroup.LayoutParams.MATCH_PARENT;
+            nh = ViewGroup.LayoutParams.MATCH_PARENT;
         } else if (ratio > box) {
-            lp.width = w;
-            lp.height = Math.round(w / ratio);
+            nw = w;
+            nh = Math.round(w / ratio);
         } else {
-            lp.width = Math.round(h * ratio);
-            lp.height = h;
+            nw = Math.round(h * ratio);
+            nh = h;
         }
-        texture.setLayoutParams(lp);
+        LayoutParams lp = (LayoutParams) surface.getLayoutParams();
+        if (lp.width == nw && lp.height == nh) return;
+        lp.width = nw;
+        lp.height = nh;
+        surface.setLayoutParams(lp);
     }
 
     @Override
