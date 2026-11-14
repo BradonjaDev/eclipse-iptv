@@ -141,6 +141,7 @@ public final class Clouds {
         private final boolean mirror;
         private Bitmap bitmap;
         private ObjectAnimator drift;
+        private long phase;
         private int gen;
 
         public CloudView(Context c, boolean mirror) {
@@ -164,7 +165,7 @@ public final class Clouds {
             drift.setRepeatCount(ValueAnimator.INFINITE);
             drift.setRepeatMode(ValueAnimator.REVERSE);
             drift.setInterpolator(new AccelerateDecelerateInterpolator());
-            drift.setCurrentPlayTime((long) (Math.random() * ms));
+            phase = (long) (Math.random() * ms);
             return this;
         }
 
@@ -206,8 +207,13 @@ public final class Clouds {
         void animate(boolean run) {
             if (drift == null) return;
             if (run) {
-                if (!drift.isStarted()) drift.start();
-                else if (drift.isPaused()) drift.resume();
+                if (!drift.isStarted()) {
+                    // Der Startpunkt muss nach start() gesetzt werden, sonst beginnt die Animation bei null
+                    drift.start();
+                    drift.setCurrentPlayTime(phase);
+                } else if (drift.isPaused()) {
+                    drift.resume();
+                }
             } else if (drift.isRunning()) {
                 drift.pause();
             }
@@ -242,6 +248,7 @@ public final class Clouds {
         private final float[][] spec;
         private final List<CloudView> views = new ArrayList<>();
         private final List<ObjectAnimator> flights = new ArrayList<>();
+        private final List<Long> phases = new ArrayList<>();
         private final Random random = new Random();
         private boolean running;
 
@@ -268,6 +275,7 @@ public final class Clouds {
             super.onSizeChanged(w, h, ow, oh);
             for (ObjectAnimator a : flights) a.cancel();
             flights.clear();
+            phases.clear();
             if (w <= 0) return;
             for (int i = 0; i < views.size(); i++) {
                 final CloudView v = views.get(i);
@@ -280,7 +288,6 @@ public final class Clouds {
                 a.setDuration(ms);
                 a.setRepeatCount(ValueAnimator.INFINITE);
                 a.setRepeatMode(ValueAnimator.RESTART);
-                a.setCurrentPlayTime((long) (k[4] * ms));
                 a.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationRepeat(Animator an) {
@@ -289,6 +296,7 @@ public final class Clouds {
                     }
                 });
                 flights.add(a);
+                phases.add((long) (k[4] * ms));
                 v.setTranslationX(from + (to - from) * k[4]);
             }
             update();
@@ -296,10 +304,16 @@ public final class Clouds {
 
         private void update() {
             boolean run = getWindowVisibility() == VISIBLE && isShown();
-            for (ObjectAnimator a : flights) {
+            for (int i = 0; i < flights.size(); i++) {
+                ObjectAnimator a = flights.get(i);
                 if (run) {
-                    if (!a.isStarted()) a.start();
-                    else if (a.isPaused()) a.resume();
+                    if (!a.isStarted()) {
+                        // Startpunkt nach start() setzen: so sind schon beim Oeffnen Wolken ueber den ganzen Himmel verteilt
+                        a.start();
+                        a.setCurrentPlayTime(phases.get(i));
+                    } else if (a.isPaused()) {
+                        a.resume();
+                    }
                 } else if (a.isRunning()) {
                     a.pause();
                 }

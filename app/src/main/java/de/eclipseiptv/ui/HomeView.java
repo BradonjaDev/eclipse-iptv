@@ -40,7 +40,7 @@ public final class HomeView extends FrameLayout implements Section {
         hero.setClipChildren(false);
         View back = new Clouds.CloudView(c, true).drift(15000, 6, 2);
         back.setAlpha(0.85f);
-        hero.addView(back, at(Ui.dp(0), Ui.dp(14), Ui.dp(26 * Clouds.RATIO), Clouds.CloudView.viewHeight(Ui.dp(26))));
+        hero.addView(back, at(Ui.dp(10), Ui.dp(14), Ui.dp(26 * Clouds.RATIO), Clouds.CloudView.viewHeight(Ui.dp(26))));
         hero.addView(new EclipseView(c), at(Ui.dp(16), Ui.dp(14), Ui.dp(104), Ui.dp(104)));
         View front = new Clouds.CloudView(c, false).drift(12000, 7, 2);
         hero.addView(front, at(Ui.dp(52), Ui.dp(80), Ui.dp(38 * Clouds.RATIO), Clouds.CloudView.viewHeight(Ui.dp(38))));
