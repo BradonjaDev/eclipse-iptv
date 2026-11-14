@@ -17,7 +17,9 @@ public final class Design {
     public static boolean rowBacking = false;
 
     /** Motiv im Hintergrund: "clouds" (ziehende Wolken) oder eines aus Scenery. */
-    public static String scenery = "clouds";
+    public static String scenery = "none";
+    /** Nur fuer die Vorschau: Oberflaeche ohne Hintergrund fotografieren (durchsichtig). */
+    public static boolean previewTransparent = false;
 
     /** Wolken im Hintergrund: Bahn (y), Hoehe, Tempo (Einheiten/s), Deckkraft, Startpunkt 0..1. */
     public static float[][] sky = {

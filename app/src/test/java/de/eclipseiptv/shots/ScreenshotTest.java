@@ -335,13 +335,10 @@ public class ScreenshotTest {
             note("Film-Player: " + t);
         }
 
-        // ---- Design-Vorschau: Hintergrund-Motive -----------------------------------------
-        for (String k : new String[]{"city", "grid", "rain", "lines", "haze"}) {
-            variant("v-motiv-" + k, false, () -> de.eclipseiptv.ui.Design.scenery = k);
-        }
-        variant("v-motiv-city-sender", true, () -> de.eclipseiptv.ui.Design.scenery = "city");
-        variant("v-motiv-grid-sender", true, () -> de.eclipseiptv.ui.Design.scenery = "grid");
-        de.eclipseiptv.ui.Design.scenery = "clouds";
+        // ---- Design-Vorschau: Oberflaeche ohne Hintergrund (fuer Live-Animationen auf der Vorschauseite)
+        variant("ui-start", false, () -> de.eclipseiptv.ui.Design.previewTransparent = true);
+        variant("ui-sender", true, () -> de.eclipseiptv.ui.Design.previewTransparent = true);
+        de.eclipseiptv.ui.Design.previewTransparent = false;
     }
 
     /** Setzt die Design-Werte zurueck, wendet eine Variante an und fotografiert Senderliste oder Start. */

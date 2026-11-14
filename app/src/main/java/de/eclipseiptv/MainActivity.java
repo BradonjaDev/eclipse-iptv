@@ -67,10 +67,12 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         prefs = new Prefs(this);
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackground(backdrop(this));
-        View scenery = "clouds".equals(de.eclipseiptv.ui.Design.scenery) ? Clouds.background(this)
-                : new de.eclipseiptv.ui.Scenery(this, de.eclipseiptv.ui.Design.scenery);
-        root.addView(scenery, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        if (!de.eclipseiptv.ui.Design.previewTransparent) root.setBackground(backdrop(this));
+        String motif = de.eclipseiptv.ui.Design.scenery;
+        if (!de.eclipseiptv.ui.Design.previewTransparent && !"none".equals(motif)) {
+            View scenery = "clouds".equals(motif) ? Clouds.background(this) : new de.eclipseiptv.ui.Scenery(this, motif);
+            root.addView(scenery, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         rail = new Rail(this);
