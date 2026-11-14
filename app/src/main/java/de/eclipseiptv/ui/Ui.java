@@ -31,7 +31,7 @@ import androidx.core.graphics.PathParser;
 
 /**
  * Gestaltung der App: eine rote Finsternis. Tiefes Schwarz, Blutmond-Rot und duenne
- * weisse Konturen; im Hintergrund roter Rauch mit wanderndem Licht und Funken (siehe Ambient)
+ * weisse Konturen; im Hintergrund wanderndes rotes Licht und Funken (siehe Ambient)
  * und Bausteine fuer die Oberflaeche. Alle Masse beziehen sich auf eine Flaeche von
  * 960 x 540 Einheiten und werden auf den echten Bildschirm umgerechnet, damit die
  * App auf jedem Fernseher gleich aussieht.

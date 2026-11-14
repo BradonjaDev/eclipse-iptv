@@ -84,7 +84,7 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     }
 
     /** Schwarzer Hintergrund mit rotem Mondlicht; die Wolken liegen als eigene Ebene darueber. */
-    /** Der lebendige Hintergrund (Rauch, wanderndes Licht, Funken). */
+    /** Der lebendige Hintergrund (wanderndes Licht, Funken). */
     public static View ambient(Context c) {
         return new Ambient(c);
     }

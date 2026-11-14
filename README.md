@@ -41,8 +41,8 @@ Einträgen.
 - **Player:** Umschalten mit ▲▼, Senderliste auf OK, Zifferneingabe, Tonspur, Untertitel und Bildformat; spielt auch AC3, E-AC3 und DTS
 - **Jugendschutz:** Inhalte ab 18 sind standardmäßig ausgeblendet; einzelne Kategorien lassen sich verbergen
 - **Einrichtung vom Handy:** QR-Code scannen, Link einfügen, fertig
-- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, eine Finsternis als Zeichen; im Hintergrund roter Rauch, große weiche Lichtflächen, die langsam wandern, und einzelne aufsteigende Funken. Die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
-- **Sparsam:** Rauch und Licht werden zusammen in ein kleines Bild gerechnet (15-mal pro Sekunde), Funken sind ein fertiger Leuchtpunkt, der nur verschoben wird; alles steht still, solange es nicht zu sehen ist
+- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, eine Finsternis als Zeichen; im Hintergrund große, weiche rote Lichtflächen, die langsam wandern, und einzelne aufsteigende Funken. Die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
+- **Sparsam:** Grund und Licht werden zusammen in ein kleines Bild gerechnet (15-mal pro Sekunde), Funken sind ein fertiger Leuchtpunkt, der nur verschoben wird; alles steht still, solange es nicht zu sehen ist
 - Kein Konto, keine Werbung, keine Datensammlung
 
 ## Installieren
@@ -109,8 +109,7 @@ liegt in den GitHub-Secrets `ECLIPSE_KEYSTORE_BASE64` und `ECLIPSE_KEYSTORE_PASS
 **Bildschirmfotos:** Der Workflow „Screenshots“ startet die App bei jedem Push ohne Gerät
 (Robolectric) mit einem kleinen Test-Server voller erfundener Sender, Filme und Serien, bedient
 sie mit den Pfeiltasten und legt die Bilder als Artefakt `screenshots` ab
-(`app/src/test/java/de/eclipseiptv/shots`). Logo und Banner entstehen aus `tools/art/logos.py`,
-der Rauch aus `data/Nebula.java` (Vorschau am PC: `tools/NebulaPreview.java`).
+(`app/src/test/java/de/eclipseiptv/shots`). Logo und Banner entstehen aus `tools/art/logos.py`.
 
 ## Aufbau
 
@@ -123,7 +122,7 @@ der Rauch aus `data/Nebula.java` (Vorschau am PC: `tools/NebulaPreview.java`).
 | `ui/BrowseView`, `HomeView`, `SearchView`, `SettingsView` | die Bereiche |
 | `ui/TvRecycler`, `Cards`, `Sheet`, `Ui` | Listen für die Fernbedienung, Karten, Auswahlfenster, Farben und Maße |
 | `ui/LivePlayer`, `LivePreview` | der gemeinsame Sender-Player und die Vorschau neben der Senderliste |
-| `ui/Ambient`, `Backdrop`, `EclipseView`, `data/Nebula` | lebendiger Hintergrund (Rauch, Licht, Funken) und Finsternis |
+| `ui/Ambient`, `EclipseView` | lebendiger Hintergrund (wanderndes Licht, Funken) und Finsternis |
 | `DetailActivity` | Film- und Serienseite |
 | `PlayerActivity` | Player (Media3/ExoPlayer) |
 | `SetupActivity`, `SetupServer` | Einrichtung, kleiner Webserver für das Handy |

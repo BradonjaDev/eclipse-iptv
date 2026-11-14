@@ -15,11 +15,11 @@ import android.view.View;
 import java.util.Random;
 
 /**
- * Der lebendige Hintergrund: roter Rauch, darueber drei grosse, weiche Lichtflaechen, die
+ * Der lebendige Hintergrund: dunkler Grund mit rotem Mondlicht, darueber drei grosse, weiche Lichtflaechen, die
  * langsam wandern und sich mischen, und einzelne Funken, die aufsteigen und verglimmen.
  *
  * Sparsam gebaut, damit die TV-Box Luft fuer das Video behaelt:
- * - Rauch und Licht werden gemeinsam in ein kleines Bild (640x360) gerechnet, 15-mal pro
+ * - Grund und Licht werden gemeinsam in ein kleines Bild (640x360) gerechnet, 15-mal pro
  *   Sekunde. Bei so langsamer Bewegung sieht man keinen Unterschied zu mehr Bildern. Auf dem
  *   Bildschirm ist das eine einzige, weich hochskalierte Flaeche.
  * - Funken sind ein fertig gezeichneter Leuchtpunkt, der nur verschoben wird (30-mal pro Sekunde).
@@ -32,7 +32,8 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
     private static final int[] LIGHT_COLORS = {0x29DD1A34, 0x3D7E0A1B, 0x14FF5C6C};
     private static final int EMBERS = 34;
 
-    private final Bitmap frame = Bitmap.createBitmap(Backdrop.W, Backdrop.H, Bitmap.Config.ARGB_8888);
+    private static final int W = 640, H = 360;
+    private final Bitmap frame = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
     private final Canvas frameCanvas = new Canvas(frame);
     private final Paint copy = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
     private final Paint light = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -42,7 +43,7 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
     private final Bitmap ember;
     private final float[][] embers = new float[EMBERS][6];
     private final Random random = new Random();
-    private Bitmap smoke;
+    private final Bitmap base;
     private boolean running;
     private long start, lastLight, lastFrame;
 
@@ -50,22 +51,28 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
         super(c);
         setFocusable(false);
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
-        // Normal ueberblenden (wie in der Vorschau): Addieren wuerde den Rauch zu hell machen
+        // Normal ueberblenden (wie in der Vorschau): Addieren wuerde den Grund zu hell machen
         for (int i = 0; i < LIGHTS.length; i++) {
-            shaders[i] = new RadialGradient(0, 0, LIGHTS[i][2] * Backdrop.W, LIGHT_COLORS[i], 0x00000000, Shader.TileMode.CLAMP);
+            shaders[i] = new RadialGradient(0, 0, LIGHTS[i][2] * W, LIGHT_COLORS[i], 0x00000000, Shader.TileMode.CLAMP);
         }
         ember = emberSprite(48);
-        smoke = Backdrop.smoke(c, new Runnable() {
-            @Override
-            public void run() {
-                smoke = Backdrop.smoke(getContext(), null);
-                composeLight(SystemClock.uptimeMillis());
-                invalidate();
-            }
-        });
+        base = base();
         start = SystemClock.uptimeMillis() - (long) (random.nextFloat() * 60000);
         for (float[] e : embers) spawn(e, true);
         composeLight(SystemClock.uptimeMillis());
+    }
+
+    /** Grund: fast schwarz, schraeg leicht aufgehellt, mit rotem Mondlicht von oben rechts. */
+    private static Bitmap base() {
+        Bitmap b = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        Paint p = new Paint(Paint.DITHER_FLAG);
+        p.setShader(new android.graphics.LinearGradient(0, 0, W, H, new int[]{0xFF0C070A, Ui.BG, 0xFF040304}, null, Shader.TileMode.CLAMP));
+        c.drawRect(0, 0, W, H, p);
+        p.setShader(new RadialGradient(W * 0.95f, -H * 0.08f, W * 0.62f, new int[]{0x4DC20E26, 0x177E0A1B, 0x00000000},
+                new float[]{0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
+        c.drawRect(0, 0, W, H, p);
+        return b;
     }
 
     /** Leuchtpunkt: weisslich-heisse Mitte, nach aussen rot, am Rand durchsichtig. */
@@ -89,20 +96,19 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
         e[5] = 0.4f + random.nextFloat() * 0.6f;
     }
 
-    /** Rauch und wanderndes Licht in das kleine Bild rechnen. */
+    /** Grund und wanderndes Licht in das kleine Bild rechnen. */
     private void composeLight(long now) {
-        if (smoke != null) frameCanvas.drawBitmap(smoke, 0, 0, null);
-        else frameCanvas.drawColor(Ui.BG);
+        frameCanvas.drawBitmap(base, 0, 0, null);
         float t = (now - start) / 1000f;
         for (int i = 0; i < LIGHTS.length; i++) {
             float[] l = LIGHTS[i];
             double ph = t / l[3] * Math.PI * 2;
-            float cx = (float) ((l[0] + Math.sin(ph) * 0.14) * Backdrop.W);
-            float cy = (float) ((l[1] + Math.cos(ph * 0.8) * 0.12) * Backdrop.H);
+            float cx = (float) ((l[0] + Math.sin(ph) * 0.14) * W);
+            float cy = (float) ((l[1] + Math.cos(ph * 0.8) * 0.12) * H);
             light.setShader(shaders[i]);
             frameCanvas.save();
             frameCanvas.translate(cx, cy);
-            float r = l[2] * Backdrop.W;
+            float r = l[2] * W;
             frameCanvas.drawRect(-r, -r, r, r, light);
             frameCanvas.restore();
         }
