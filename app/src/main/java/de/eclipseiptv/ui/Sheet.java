@@ -27,11 +27,15 @@ public final class Sheet extends Dialog {
                 dismiss();
             }
         });
+        // Anklickbare Flaechen werden ab Android 8 sonst automatisch fokussierbar und
+        // schnappen der ersten Zeile den Fokus weg.
+        root.setFocusable(false);
         LinearLayout panel = new LinearLayout(c);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setBackground(Ui.outline(Ui.SURFACE, 16, Ui.LINE, 0.7f));
         panel.setPadding(Ui.dp(18), Ui.dp(18), Ui.dp(18), Ui.dp(14));
         panel.setClickable(true);
+        panel.setFocusable(false);
         TextView t = Ui.text(c, 15f, Ui.TEXT, true);
         t.setText(title);
         Ui.lines(t, 2);
@@ -124,7 +128,7 @@ public final class Sheet extends Dialog {
             first.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (getCurrentFocus() == null || !getCurrentFocus().isFocused()) first.requestFocus();
+                    if (!first.isFocused() && (getCurrentFocus() == null || getCurrentFocus().getParent() != first.getParent())) first.requestFocus();
                 }
             });
         }

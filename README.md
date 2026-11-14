@@ -33,7 +33,7 @@ Einträgen.
 - **Große Playlists:** zehntausende Sender, Filme und Serien werden in eine lokale Datenbank eingelesen und sind danach sofort durchsuchbar
 - **Listen entstehen von selbst:** die Kategorien der Playlist werden übernommen, getrennt nach Sendern, Filmen und Serien
 - **Xtream-Zugänge werden erkannt:** aus einem Link der Form `…/get.php?username=…&password=…` holt die App zusätzlich Beschreibungen, Besetzung, Bewertungen, Trailer und das laufende Programm
-- **Vorschau neben der Senderliste:** Zurück aus dem Vollbild läuft der Sender klein weiter, ohne neu zu laden – über dieselbe Verbindung, auch bei Zugängen mit nur einer erlaubten Verbindung
+- **Vorschau neben der Senderliste:** Zurück aus dem Vollbild läuft der Sender klein weiter, ohne neu zu laden – über dieselbe Verbindung, auch bei Zugängen mit nur einer erlaubten Verbindung. Das Video geht direkt an die Grafik-Hardware (SurfaceView) und bleibt flüssig, egal was in der Liste passiert
 - **Programm zum Sender:** was läuft gerade, wie lange noch, was kommt danach
 - **Filme und Serien mit Detailseite:** Poster, Handlung, Trailer (über die YouTube-App), Staffeln und Folgen
 - **Weiterschauen:** die App merkt sich, wo du aufgehört hast, und spielt bei Serien die nächste Folge
@@ -41,7 +41,8 @@ Einträgen.
 - **Player:** Umschalten mit ▲▼, Senderliste auf OK, Zifferneingabe, Tonspur, Untertitel und Bildformat; spielt auch AC3, E-AC3 und DTS
 - **Jugendschutz:** Inhalte ab 18 sind standardmäßig ausgeblendet; einzelne Kategorien lassen sich verbergen
 - **Einrichtung vom Handy:** QR-Code scannen, Link einfügen, fertig
-- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, rote Wolken; die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
+- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, langsam treibende rote Wolken; die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
+- **Sparsam:** Wolken werden einmal gezeichnet und nur verschoben, der Hintergrund ist vorberechnet, und alle Animationen stehen still, solange sie nicht zu sehen sind
 - Kein Konto, keine Werbung, keine Datensammlung
 
 ## Installieren
