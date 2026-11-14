@@ -49,7 +49,8 @@ public final class BrowseView extends LinearLayout implements Section {
 
         if (live) {
             // Eine grosse, gedaempfte Finsternis hinter der Senderliste
-            setBackground(new EclipseView.Art(0.34f).at(0.44f, 0.56f, 0.47f));
+            setBackground(new EclipseView.Art(Design.listEclipseIntensity).rim(Design.listEclipseRim)
+                    .at(Design.listEclipse[0], Design.listEclipse[1], Design.listEclipse[2]));
         }
         cats = new TvRecycler(c).vertical().lockAxis(true);
         cats.setPadding(Ui.dp(8), Ui.dp(20), Ui.dp(8), Ui.dp(20));

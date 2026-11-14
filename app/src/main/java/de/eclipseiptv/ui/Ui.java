@@ -169,6 +169,22 @@ public final class Ui {
         return s;
     }
 
+    /** Wie rowBg, aber mit dunklem, halbdurchsichtigem Grund auch ohne Fokus (Text bleibt vor jedem Hintergrund lesbar). */
+    public static Drawable rowBgBacked(float radius) {
+        StateListDrawable out = new StateListDrawable();
+        out.addState(new int[]{android.R.attr.state_focused}, cloak(radius));
+        GradientDrawable tint = rect(0xCC1C0A10, radius);
+        GradientDrawable bar = rect(ACCENT, 2);
+        android.graphics.drawable.LayerDrawable active = new android.graphics.drawable.LayerDrawable(new Drawable[]{tint, bar});
+        active.setLayerGravity(1, Gravity.START | Gravity.FILL_VERTICAL);
+        active.setLayerWidth(1, dp(3));
+        active.setLayerInsetTop(1, dp(7));
+        active.setLayerInsetBottom(1, dp(7));
+        out.addState(new int[]{android.R.attr.state_activated}, active);
+        out.addState(new int[]{}, rect(0xB30A0608, radius));
+        return out;
+    }
+
     /** Textfarben fuer Zeilen: weiss bei Fokus (auf Rot), sonst normal. */
     public static ColorStateList rowText(int normal) {
         return states(WHITE, WHITE, normal);

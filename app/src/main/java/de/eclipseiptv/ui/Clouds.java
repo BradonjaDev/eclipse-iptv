@@ -367,14 +367,6 @@ public final class Clouds {
 
     /** Himmel fuer den Hintergrund der Hauptansicht. */
     public static Sky background(Context c) {
-        return new Sky(c, new float[][]{
-                // Bahn, Hoehe, Tempo, Deckkraft, Startpunkt
-                {10, 24, 7, 0.30f, 0.15f},
-                {196, 22, 6, 0.26f, 0.70f},
-                {112, 36, 11, 0.36f, 0.55f},
-                {318, 40, 12, 0.36f, 0.05f},
-                {262, 54, 16, 0.40f, 0.85f},
-                {440, 66, 19, 0.44f, 0.35f},
-        });
+        return new Sky(c, Design.sky);
     }
 }

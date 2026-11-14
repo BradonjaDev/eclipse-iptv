@@ -2,6 +2,7 @@ package de.eclipseiptv.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -28,6 +29,7 @@ public final class EclipseView extends View {
         private final Paint rim = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final float intensity;
         private float cx, cy, r;
+        private int rimAlpha = 255;
         /** Mittelpunkt und Radius relativ zur Flaeche; null = zentriert und ausgefuellt. */
         private float[] place;
 
@@ -36,6 +38,13 @@ public final class EclipseView extends View {
             disc.setColor(0xFF050304);
             rim.setStyle(Paint.Style.STROKE);
             rim.setColor(0xFFFFFFFF);
+        }
+
+        /** Farbe des Randes (Standard: weiss). */
+        public Art rim(int color) {
+            rim.setColor(color);
+            rimAlpha = Color.alpha(color);
+            return this;
         }
 
         /** Positioniert die Finsternis: Mitte (Anteil von Breite/Hoehe) und Radius (Anteil der Hoehe). */
@@ -64,7 +73,7 @@ public final class EclipseView extends View {
             // Duenne Kontur: bei grossen Finsternissen (Hintergrund) nicht dicker als ein feiner Strich
             rim.setStrokeWidth(Math.max(1f, Math.min(r * 0.03f, Ui.px(2.2f))));
             // Weisser Rand wie im Logo, auch bei gedaempfter Darstellung klar weiss
-            rim.setAlpha(Math.round(255 * Math.min(1f, 0.45f + intensity * 1.2f)));
+            rim.setAlpha(Math.round(255 * Math.min(1f, 0.45f + intensity * 1.2f) * rimAlpha / 255f));
             disc.setAlpha(255);
         }
 

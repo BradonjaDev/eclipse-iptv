@@ -132,7 +132,7 @@ public final class Cards extends RecyclerView.Adapter<Cards.H> {
         LinearLayout l = new LinearLayout(c);
         l.setOrientation(LinearLayout.HORIZONTAL);
         l.setGravity(Gravity.CENTER_VERTICAL);
-        l.setBackground(Ui.rowBg(9));
+        l.setBackground(Design.rowBacking ? Ui.rowBgBacked(9) : Ui.rowBg(9));
         l.setPadding(Ui.dp(6), 0, Ui.dp(12), 0);
         RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(42));
         lp.bottomMargin = Ui.dp(3);

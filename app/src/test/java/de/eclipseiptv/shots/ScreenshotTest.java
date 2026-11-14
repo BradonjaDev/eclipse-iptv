@@ -334,5 +334,46 @@ public class ScreenshotTest {
         } catch (Throwable t) {
             note("Film-Player: " + t);
         }
+
+        // ---- Design-Vorschau: Varianten nebeneinander ----------------------------------
+        float[][] skyBefore = de.eclipseiptv.ui.Design.sky;
+        variant("v-sender-a-dunkle-zeilen", true, () -> de.eclipseiptv.ui.Design.rowBacking = true);
+        variant("v-sender-b-roter-rand", true, () -> de.eclipseiptv.ui.Design.listEclipseRim = 0xFFDD1A34);
+        variant("v-sender-c-aufgehend", true, () -> {
+            de.eclipseiptv.ui.Design.listEclipse = new float[]{0.44f, 1.08f, 0.62f};
+            de.eclipseiptv.ui.Design.listEclipseIntensity = 0.42f;
+        });
+        variant("v-start-wolken-1-drei-grosse", false, () -> de.eclipseiptv.ui.Design.sky = new float[][]{
+                {26, 92, 2.6f, 0.34f, 0.62f}, {214, 118, 3.2f, 0.38f, 0.18f}, {386, 140, 4.0f, 0.42f, 0.78f}});
+        variant("v-start-wolken-2-zwei-riesige", false, () -> de.eclipseiptv.ui.Design.sky = new float[][]{
+                {54, 150, 2.0f, 0.30f, 0.55f}, {300, 176, 2.6f, 0.34f, 0.08f}});
+        de.eclipseiptv.ui.Design.sky = skyBefore;
+    }
+
+    /** Setzt die Design-Werte zurueck, wendet eine Variante an und fotografiert Senderliste oder Start. */
+    private void variant(String name, boolean sender, Runnable apply) throws Exception {
+        de.eclipseiptv.ui.Design.rowBacking = false;
+        de.eclipseiptv.ui.Design.listEclipseRim = 0xFFFFFFFF;
+        de.eclipseiptv.ui.Design.listEclipse = new float[]{0.44f, 0.56f, 0.47f};
+        de.eclipseiptv.ui.Design.listEclipseIntensity = 0.34f;
+        apply.run();
+        ActivityController<MainActivity> c = Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity m = c.get();
+        idle(1500);
+        if (sender) {
+            press(m, KeyEvent.KEYCODE_DPAD_DOWN);
+            idle(600);
+            press(m, KeyEvent.KEYCODE_DPAD_RIGHT);
+            idle(600);
+            press(m, KeyEvent.KEYCODE_DPAD_DOWN);
+            press(m, KeyEvent.KEYCODE_DPAD_DOWN);
+            idle(900);
+            press(m, KeyEvent.KEYCODE_DPAD_RIGHT);
+            press(m, KeyEvent.KEYCODE_DPAD_DOWN);
+            idle(900);
+        }
+        shot(m, name);
+        c.pause().stop().destroy();
+        idle(300);
     }
 }
