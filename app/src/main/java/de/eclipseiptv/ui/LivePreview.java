@@ -44,6 +44,8 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
     private Source source;
     private int retries;
     private boolean triedAlt;
+    /** Fuer welchen Sender die Sendungszeile zuletzt geladen wurde. */
+    private Playable epgFor;
 
     public LivePreview(Context c) {
         super(c);
@@ -125,6 +127,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
 
     public void detach() {
         Bg.cancel(retry);
+        epgFor = null;
         if (player != null) {
             player.removeListener(this);
             // Nur wenn der Player noch lebt (er wird freigegeben, sobald die App in den Hintergrund geht)
@@ -145,6 +148,8 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
             return;
         }
         name.setText(p.title);
+        if (p == epgFor) return;
+        epgFor = p;
         now.setText("");
         now.setVisibility(GONE);
         if (p.item != null) {
@@ -240,6 +245,17 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
                 }
             });
         }
+    }
+
+    /**
+     * Ist die Vorschau nicht zu sehen (Vollbild offen, App im Hintergrund), meldet sie sich
+     * vom Player ab. Sonst wuerden Vorschau und Vollbild bei einer Stoerung gleichzeitig
+     * neu verbinden. Beim naechsten attach() meldet sie sich wieder an.
+     */
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (visibility != VISIBLE) detach();
     }
 
     @Override
