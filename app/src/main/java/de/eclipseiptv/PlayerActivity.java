@@ -162,6 +162,7 @@ public final class PlayerActivity extends Activity implements Player.Listener {
             }
         });
         setContentView(root);
+        Ui.noWindowBackground(this);
         root.requestFocus();
     }
 

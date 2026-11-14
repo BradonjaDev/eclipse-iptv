@@ -76,6 +76,15 @@ public final class Ui {
         immersive(a);
     }
 
+    /**
+     * Entfernt den Fensterhintergrund. Muss nach setContentView aufgerufen werden, weil
+     * Android ihn dabei aus dem Theme neu setzt. Jede Ansicht malt ihren eigenen, deckenden
+     * Hintergrund; so spart jedes Bild einen Zeichenschritt ueber den ganzen Bildschirm.
+     */
+    public static void noWindowBackground(Activity a) {
+        a.getWindow().setBackgroundDrawable(null);
+    }
+
     public static void immersive(Activity a) {
         a.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

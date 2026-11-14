@@ -139,6 +139,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         frame.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         frame.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(frame);
+        Ui.noWindowBackground(this);
         firstButton.requestFocus();
     }
 

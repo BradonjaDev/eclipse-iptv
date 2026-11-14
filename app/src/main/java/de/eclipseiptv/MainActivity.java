@@ -82,6 +82,7 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         row.addView(content, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         root.addView(row, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(root);
+        Ui.noWindowBackground(this);
         if (state != null) pending = state.getInt("section", HOME);
     }
 

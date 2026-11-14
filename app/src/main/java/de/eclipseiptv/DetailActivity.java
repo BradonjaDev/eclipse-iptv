@@ -189,6 +189,7 @@ public final class DetailActivity extends Activity {
             page.addView(episodeList, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         }
         setContentView(root);
+        Ui.noWindowBackground(this);
     }
 
     private View button(String icon, String label, boolean primary, final Runnable action) {
