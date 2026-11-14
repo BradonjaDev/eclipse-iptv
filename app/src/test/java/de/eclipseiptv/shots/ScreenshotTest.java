@@ -163,6 +163,7 @@ public class ScreenshotTest {
     }
 
     private void run(FakeXtream server) throws Exception {
+        System.setProperty("eclipse.staticSky", "true");
         // Fernbedienung statt Touchscreen: sonst nimmt Android keinen Tastenfokus an
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().setInTouchMode(false);
         android.content.Context app = ApplicationProvider.getApplicationContext();

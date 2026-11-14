@@ -63,6 +63,8 @@ public final class Clouds {
      * springen Animationen sofort ans Ende. Dann bleiben die Wolken stattdessen verteilt stehen.
      */
     static boolean animationsOn() {
+        // Schalter fuer die Screenshot-Tests (Robolectric spielt Endlos-Animationen nur einmal ab)
+        if (Boolean.getBoolean("eclipse.staticSky")) return false;
         return android.os.Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled();
     }
 
