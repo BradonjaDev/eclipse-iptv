@@ -63,7 +63,7 @@ public final class EclipseView extends View {
             glow.setAlpha(a);
             rim.setStrokeWidth(Math.max(1f, r * 0.03f));
             rim.setAlpha(Math.round(255 * Math.min(1f, intensity * intensity * 1.4f)));
-            disc.setAlpha(Math.round(255 * Math.min(1f, intensity * 2.4f)));
+            disc.setAlpha(255);
         }
 
         @Override

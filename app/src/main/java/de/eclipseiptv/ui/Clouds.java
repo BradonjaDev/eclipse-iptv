@@ -185,10 +185,10 @@ public final class Clouds {
     /** Anordnung fuer den Hintergrund: alle Wolken ganz im Bild, keine hinter der Uhr. */
     public static Layer background(Context c) {
         return new Layer(c, new float[][]{
-                {520, 8, 46, 0.22f, 0},
-                {846, 168, 46, 0.24f, 1},
-                {722, 432, 84, 0.26f, 0},
-                {96, 470, 52, 0.16f, 1},
+                {520, 8, 46, 0.32f, 0},
+                {846, 168, 46, 0.36f, 1},
+                {722, 432, 84, 0.34f, 0},
+                {96, 470, 52, 0.24f, 1},
         });
     }
 }

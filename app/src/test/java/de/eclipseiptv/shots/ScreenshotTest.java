@@ -309,7 +309,11 @@ public class ScreenshotTest {
             press(vc.get(), KeyEvent.KEYCODE_DPAD_DOWN);
             idle(600);
             Dialog d = ShadowDialog.getLatestDialog();
-            if (d != null && d.isShowing()) shot(d.getWindow().getDecorView(), "16-optionen-fenster");
+            if (d != null && d.isShowing()) {
+                View dv = d.getWindow().getDecorView();
+                note("Optionsfenster: Touch-Modus " + dv.isInTouchMode() + ", Fokus " + (dv.findFocus() == null ? "keiner" : text(dv.findFocus())));
+                shot(dv, "16-optionen-fenster");
+            }
             else note("Kein Optionsfenster");
             vc.pause().stop().destroy();
         } catch (Throwable t) {
