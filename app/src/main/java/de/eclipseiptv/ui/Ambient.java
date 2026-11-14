@@ -5,8 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
@@ -52,7 +50,7 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
         super(c);
         setFocusable(false);
         setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
-        light.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.ADD));
+        // Normal ueberblenden (wie in der Vorschau): Addieren wuerde den Rauch zu hell machen
         for (int i = 0; i < LIGHTS.length; i++) {
             shaders[i] = new RadialGradient(0, 0, LIGHTS[i][2] * Backdrop.W, LIGHT_COLORS[i], 0x00000000, Shader.TileMode.CLAMP);
         }
