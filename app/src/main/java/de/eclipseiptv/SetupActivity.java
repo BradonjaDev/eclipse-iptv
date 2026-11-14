@@ -135,7 +135,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         right.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         root.addView(right, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.85f));
         FrameLayout frame = new FrameLayout(this);
-        frame.setBackground(MainActivity.backdrop());
+        frame.setBackground(MainActivity.backdrop(this));
         frame.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         frame.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(frame);

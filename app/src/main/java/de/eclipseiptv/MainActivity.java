@@ -67,7 +67,7 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         prefs = new Prefs(this);
 
         FrameLayout root = new FrameLayout(this);
-        root.setBackground(backdrop());
+        root.setBackground(backdrop(this));
         root.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -82,8 +82,8 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     }
 
     /** Schwarzer Hintergrund mit rotem Mondlicht; die Wolken liegen als eigene Ebene darueber. */
-    public static Drawable backdrop() {
-        return new de.eclipseiptv.ui.Backdrop();
+    public static Drawable backdrop(Context c) {
+        return new de.eclipseiptv.ui.Backdrop(c);
     }
 
     @Override

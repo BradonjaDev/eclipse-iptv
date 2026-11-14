@@ -61,8 +61,10 @@ public final class EclipseView extends View {
             glow.setShader(new RadialGradient(cx, cy, r, new int[]{0xFFFFD6DA, 0xFFFF2B42, 0xB0B00A20, 0x307E0A1B, 0x007E0A1B},
                     new float[]{0f, 0.52f, 0.62f, 0.82f, 1f}, Shader.TileMode.CLAMP));
             glow.setAlpha(a);
-            rim.setStrokeWidth(Math.max(1f, r * 0.03f));
-            rim.setAlpha(Math.round(255 * Math.min(1f, intensity * intensity * 1.4f)));
+            // Duenne Kontur: bei grossen Finsternissen (Hintergrund) nicht dicker als ein feiner Strich
+            rim.setStrokeWidth(Math.max(1f, Math.min(r * 0.03f, Ui.px(2.2f))));
+            // Weisser Rand wie im Logo, auch bei gedaempfter Darstellung klar weiss
+            rim.setAlpha(Math.round(255 * Math.min(1f, 0.45f + intensity * 1.2f)));
             disc.setAlpha(255);
         }
 
