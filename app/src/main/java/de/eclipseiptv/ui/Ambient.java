@@ -148,9 +148,14 @@ public final class Ambient extends View implements Choreographer.FrameCallback {
         Choreographer.getInstance().postFrameCallback(this);
     }
 
+    /** Bewegung erlaubt? Nicht, wenn Animationen auf dem Geraet aus sind, und nicht in den Screenshot-Tests. */
+    static boolean moving() {
+        if (Boolean.getBoolean("eclipse.stillBackground")) return false;
+        return android.os.Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled();
+    }
+
     private void update() {
-        boolean on = getWindowVisibility() == VISIBLE && isShown() && isAttachedToWindow()
-                && (android.os.Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled());
+        boolean on = getWindowVisibility() == VISIBLE && isShown() && isAttachedToWindow() && moving();
         if (on == running) return;
         running = on;
         if (on) {

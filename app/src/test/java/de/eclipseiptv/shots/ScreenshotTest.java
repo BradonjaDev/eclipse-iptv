@@ -150,6 +150,8 @@ public class ScreenshotTest {
     }
 
     private void run(FakeXtream server) throws Exception {
+        // Der lebendige Hintergrund wuerde hier jedes Bild in Software nachrechnen: im Test ruhig stellen
+        System.setProperty("eclipse.stillBackground", "true");
         // Fernbedienung statt Touchscreen: sonst nimmt Android keinen Tastenfokus an
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().setInTouchMode(false);
         android.content.Context app = ApplicationProvider.getApplicationContext();
