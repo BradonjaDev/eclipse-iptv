@@ -29,7 +29,7 @@ import java.util.Random;
 public final class Ambient extends View implements Choreographer.FrameCallback {
     /** Lichtflaechen: Mitte x, Mitte y, Radius (Anteile der Breite), Periode (s), Farbe. */
     private static final float[][] LIGHTS = {{0.78f, 0.18f, 0.55f, 48}, {0.30f, 0.78f, 0.62f, 61}, {0.62f, 0.62f, 0.40f, 39}};
-    private static final int[] LIGHT_COLORS = {0x42DD1A34, 0x617E0A1B, 0x1FFF5C6C};
+    private static final int[] LIGHT_COLORS = {0x29DD1A34, 0x3D7E0A1B, 0x14FF5C6C};
     private static final int EMBERS = 34;
 
     private final Bitmap frame = Bitmap.createBitmap(Backdrop.W, Backdrop.H, Bitmap.Config.ARGB_8888);
