@@ -130,6 +130,19 @@ public class ScreenshotTest {
         return "";
     }
 
+    private void skyLog(View v) {
+        if (v instanceof de.eclipseiptv.ui.Clouds.Sky) {
+            ViewGroup g = (ViewGroup) v;
+            note("Himmel " + v.getWidth() + "x" + v.getHeight() + " sichtbar=" + v.isShown() + " Wolken=" + g.getChildCount());
+            for (int i = 0; i < g.getChildCount(); i++) {
+                View c = g.getChildAt(i);
+                note("  Wolke " + i + ": " + c.getWidth() + "x" + c.getHeight() + " x=" + c.getLeft() + "+" + c.getTranslationX() + " y=" + c.getTop() + " alpha=" + c.getAlpha());
+            }
+            return;
+        }
+        if (v instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) skyLog(((ViewGroup) v).getChildAt(i));
+    }
+
     private void note(String s) {
         log.add(s);
         System.out.println("SHOT " + s);
@@ -171,6 +184,7 @@ public class ScreenshotTest {
         MainActivity main = mc.get();
         idle(1500);
         note("Touch-Modus: " + main.getWindow().getDecorView().isInTouchMode());
+        skyLog(main.getWindow().getDecorView());
         shot(main, "01-start");
         note("Start: " + focus(main));
 
