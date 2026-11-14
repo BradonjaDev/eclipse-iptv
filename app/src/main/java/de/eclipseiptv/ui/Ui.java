@@ -31,7 +31,7 @@ import androidx.core.graphics.PathParser;
 
 /**
  * Gestaltung der App: eine rote Finsternis. Tiefes Schwarz, Blutmond-Rot und duenne
- * weisse Konturen, dazu Wolkenbaender im Stil japanischer Tuschezeichnungen (siehe Clouds)
+ * weisse Konturen; im Hintergrund roter Rauch mit wanderndem Licht und Funken (siehe Ambient)
  * und Bausteine fuer die Oberflaeche. Alle Masse beziehen sich auf eine Flaeche von
  * 960 x 540 Einheiten und werden auf den echten Bildschirm umgerechnet, damit die
  * App auf jedem Fernseher gleich aussieht.
@@ -176,22 +176,6 @@ public final class Ui {
         s.addState(new int[]{android.R.attr.state_activated}, active);
         s.addState(new int[]{}, rect(0x00000000, radius));
         return s;
-    }
-
-    /** Wie rowBg, aber mit dunklem, halbdurchsichtigem Grund auch ohne Fokus (Text bleibt vor jedem Hintergrund lesbar). */
-    public static Drawable rowBgBacked(float radius) {
-        StateListDrawable out = new StateListDrawable();
-        out.addState(new int[]{android.R.attr.state_focused}, cloak(radius));
-        GradientDrawable tint = rect(0xCC1C0A10, radius);
-        GradientDrawable bar = rect(ACCENT, 2);
-        android.graphics.drawable.LayerDrawable active = new android.graphics.drawable.LayerDrawable(new Drawable[]{tint, bar});
-        active.setLayerGravity(1, Gravity.START | Gravity.FILL_VERTICAL);
-        active.setLayerWidth(1, dp(3));
-        active.setLayerInsetTop(1, dp(7));
-        active.setLayerInsetBottom(1, dp(7));
-        out.addState(new int[]{android.R.attr.state_activated}, active);
-        out.addState(new int[]{}, rect(0xB30A0608, radius));
-        return out;
     }
 
     /** Textfarben fuer Zeilen: weiss bei Fokus (auf Rot), sonst normal. */

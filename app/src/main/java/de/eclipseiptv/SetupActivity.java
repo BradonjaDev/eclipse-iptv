@@ -33,7 +33,6 @@ import de.eclipseiptv.data.Db;
 import de.eclipseiptv.data.Prefs;
 import de.eclipseiptv.data.Source;
 import de.eclipseiptv.data.Sync;
-import de.eclipseiptv.ui.Clouds;
 import de.eclipseiptv.ui.EclipseView;
 import de.eclipseiptv.ui.Sheet;
 import de.eclipseiptv.ui.Ui;
@@ -135,8 +134,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         right.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         root.addView(right, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.85f));
         FrameLayout frame = new FrameLayout(this);
-        frame.setBackground(MainActivity.backdrop(this));
-        frame.addView(Clouds.background(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        frame.addView(MainActivity.ambient(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         frame.addView(root, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(frame);
         Ui.noWindowBackground(this);

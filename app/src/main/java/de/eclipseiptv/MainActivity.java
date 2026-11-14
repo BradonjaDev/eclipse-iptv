@@ -29,7 +29,7 @@ import de.eclipseiptv.data.Prefs;
 import de.eclipseiptv.data.Source;
 import de.eclipseiptv.data.Sync;
 import de.eclipseiptv.ui.BrowseView;
-import de.eclipseiptv.ui.Clouds;
+import de.eclipseiptv.ui.Ambient;
 import de.eclipseiptv.ui.EclipseView;
 import de.eclipseiptv.ui.LivePlayer;
 import de.eclipseiptv.ui.HomeView;
@@ -67,11 +67,8 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
         prefs = new Prefs(this);
 
         FrameLayout root = new FrameLayout(this);
-        if (!de.eclipseiptv.ui.Design.previewTransparent) root.setBackground(backdrop(this));
-        String motif = de.eclipseiptv.ui.Design.scenery;
-        if (!de.eclipseiptv.ui.Design.previewTransparent && !"none".equals(motif)) {
-            View scenery = "clouds".equals(motif) ? Clouds.background(this) : new de.eclipseiptv.ui.Scenery(this, motif);
-            root.addView(scenery, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        if (!de.eclipseiptv.ui.Design.previewTransparent) {
+            root.addView(new Ambient(this), new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -87,8 +84,9 @@ public final class MainActivity extends Activity implements Host, Sync.Listener 
     }
 
     /** Schwarzer Hintergrund mit rotem Mondlicht; die Wolken liegen als eigene Ebene darueber. */
-    public static Drawable backdrop(Context c) {
-        return new de.eclipseiptv.ui.Backdrop(c);
+    /** Der lebendige Hintergrund (Rauch, wanderndes Licht, Funken). */
+    public static View ambient(Context c) {
+        return new Ambient(c);
     }
 
     @Override

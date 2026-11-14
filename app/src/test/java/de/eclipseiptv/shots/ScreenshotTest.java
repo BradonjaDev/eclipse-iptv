@@ -130,19 +130,6 @@ public class ScreenshotTest {
         return "";
     }
 
-    private void skyLog(View v) {
-        if (v instanceof de.eclipseiptv.ui.Clouds.Sky) {
-            ViewGroup g = (ViewGroup) v;
-            note("Himmel " + v.getWidth() + "x" + v.getHeight() + " sichtbar=" + v.isShown() + " Wolken=" + g.getChildCount());
-            for (int i = 0; i < g.getChildCount(); i++) {
-                View c = g.getChildAt(i);
-                note("  Wolke " + i + ": " + c.getWidth() + "x" + c.getHeight() + " x=" + c.getLeft() + "+" + c.getTranslationX() + " y=" + c.getTop() + " alpha=" + c.getAlpha());
-            }
-            return;
-        }
-        if (v instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) skyLog(((ViewGroup) v).getChildAt(i));
-    }
-
     private void note(String s) {
         log.add(s);
         System.out.println("SHOT " + s);
@@ -163,7 +150,6 @@ public class ScreenshotTest {
     }
 
     private void run(FakeXtream server) throws Exception {
-        System.setProperty("eclipse.staticSky", "true");
         // Fernbedienung statt Touchscreen: sonst nimmt Android keinen Tastenfokus an
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().setInTouchMode(false);
         android.content.Context app = ApplicationProvider.getApplicationContext();
@@ -185,7 +171,6 @@ public class ScreenshotTest {
         MainActivity main = mc.get();
         idle(1500);
         note("Touch-Modus: " + main.getWindow().getDecorView().isInTouchMode());
-        skyLog(main.getWindow().getDecorView());
         shot(main, "01-start");
         note("Start: " + focus(main));
 
@@ -343,7 +328,6 @@ public class ScreenshotTest {
 
     /** Setzt die Design-Werte zurueck, wendet eine Variante an und fotografiert Senderliste oder Start. */
     private void variant(String name, boolean sender, Runnable apply) throws Exception {
-        de.eclipseiptv.ui.Design.rowBacking = false;
         de.eclipseiptv.ui.Design.listEclipseRim = 0xFFDD1A34;
         de.eclipseiptv.ui.Design.listEclipse = new float[]{0.44f, 0.56f, 0.47f};
         de.eclipseiptv.ui.Design.listEclipseIntensity = 0.34f;

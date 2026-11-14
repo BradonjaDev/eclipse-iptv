@@ -66,7 +66,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         hint.setGravity(Gravity.CENTER);
         hint.setLineSpacing(Ui.px(2), 1f);
         hint.setPadding(Ui.dp(16), Ui.dp(8), Ui.dp(16), 0);
-        hint.setText("OK startet einen Sender im Vollbild.\nMit Zurück läuft er hier weiter.");
+        hint.setText("Sender wählen und mit OK bestätigen");
         ph.addView(hint);
         placeholder = ph;
         addView(ph, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -144,7 +144,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         overlay.setVisibility(on ? VISIBLE : GONE);
         spinner.setVisibility(on && player.getPlaybackState() == Player.STATE_BUFFERING ? VISIBLE : GONE);
         if (!on) {
-            hint.setText("OK startet einen Sender im Vollbild.\nMit Zurück läuft er hier weiter.");
+            hint.setText("Sender wählen und mit OK bestätigen");
             return;
         }
         name.setText(p.title);

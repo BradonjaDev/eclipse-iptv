@@ -3,15 +3,9 @@ package de.eclipseiptv.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,28 +13,26 @@ import de.eclipseiptv.data.Bg;
 import de.eclipseiptv.data.Nebula;
 
 /**
- * Der Hintergrund der App: Schwarz mit rotem Rauch und Mondlicht (siehe Nebula).
- *
- * Das Bild wird beim ersten Start einmal im Hintergrund berechnet und als Datei
- * zwischengespeichert; danach ist es sofort da. Gezeichnet wird es weich hochskaliert in
- * einem einzigen Schritt – der Hintergrund kostet pro Bild also so gut wie nichts.
+ * Laedt das Rauchbild des Hintergrunds (siehe Nebula). Es wird beim ersten Start einmal im
+ * Hintergrund berechnet und als Datei zwischengespeichert; danach ist es sofort da.
  */
-public final class Backdrop extends Drawable {
-    private static final int W = 640, H = 360, SEED = 7, VERSION = 1;
+public final class Backdrop {
+    public static final int W = 640, H = 360;
+    private static final int SEED = 7, VERSION = 1;
     private static Bitmap shared;
     private static boolean loading;
-    private static final List<WeakReference<Backdrop>> WAITING = new ArrayList<>();
+    private static final List<Runnable> WAITING = new ArrayList<>();
 
-    private final Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
-
-    public Backdrop(Context c) {
-        if (shared == null) load(c.getApplicationContext(), this);
+    private Backdrop() {
     }
 
-    private static void load(final Context app, Backdrop who) {
-        WAITING.add(new WeakReference<>(who));
-        if (loading) return;
+    /** Das Rauchbild, oder null, solange es noch berechnet wird (dann folgt onReady). */
+    public static Bitmap smoke(Context c, Runnable onReady) {
+        if (shared != null) return shared;
+        if (onReady != null) WAITING.add(onReady);
+        if (loading) return null;
         loading = true;
+        final Context app = c.getApplicationContext();
         Bg.run(new Runnable() {
             @Override
             public void run() {
@@ -60,33 +52,12 @@ public final class Backdrop extends Drawable {
                     public void run() {
                         shared = done;
                         loading = false;
-                        for (WeakReference<Backdrop> r : WAITING) {
-                            Backdrop d = r.get();
-                            if (d != null) d.invalidateSelf();
-                        }
+                        for (Runnable r : new ArrayList<>(WAITING)) r.run();
                         WAITING.clear();
                     }
                 });
             }
         });
-    }
-
-    @Override
-    public void draw(Canvas c) {
-        if (shared != null) c.drawBitmap(shared, null, getBounds(), paint);
-        else c.drawColor(Ui.BG);
-    }
-
-    @Override
-    public void setAlpha(int a) {
-    }
-
-    @Override
-    public void setColorFilter(ColorFilter f) {
-    }
-
-    @Override
-    public int getOpacity() {
-        return PixelFormat.OPAQUE;
+        return null;
     }
 }
