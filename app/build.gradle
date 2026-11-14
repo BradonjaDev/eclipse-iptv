@@ -10,8 +10,8 @@ android {
         applicationId 'de.eclipseiptv'
         minSdk 24
         targetSdk 34
-        versionCode 5
-        versionName '0.9.0'
+        versionCode 6
+        versionName '0.9.1'
     }
 
     // Fester Schluessel, damit sich spaetere Versionen ueber die alte installieren lassen.

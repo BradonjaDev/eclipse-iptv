@@ -41,8 +41,8 @@ Einträgen.
 - **Player:** Umschalten mit ▲▼, Senderliste auf OK, Zifferneingabe, Tonspur, Untertitel und Bildformat; spielt auch AC3, E-AC3 und DTS
 - **Jugendschutz:** Inhalte ab 18 sind standardmäßig ausgeblendet; einzelne Kategorien lassen sich verbergen
 - **Einrichtung vom Handy:** QR-Code scannen, Link einfügen, fertig
-- **Design:** Schwarz, Blutmond-Rot und weiße Konturen, langsam treibende rote Wolken; die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
-- **Sparsam:** Wolken werden einmal gezeichnet und nur verschoben, der Hintergrund ist vorberechnet, und alle Animationen stehen still, solange sie nicht zu sehen sind
+- **Design:** Schwarz, Blutmond-Rot und weiße Konturen; im Hintergrund roter Rauch im Mondlicht und plastische rote Wolken, die langsam von links nach rechts ziehen (kleine, ferne langsamer als große, nahe). Die Auswahl ist eine kräftig rote Fläche mit weißem Rand und auch vom Sofa aus gut zu erkennen
+- **Sparsam:** Wolken und Rauch werden einmal berechnet (der Rauch wird zwischengespeichert) und danach nur noch verschoben bzw. als Bild gezeigt; alle Animationen stehen still, solange sie nicht zu sehen sind
 - Kein Konto, keine Werbung, keine Datensammlung
 
 ## Installieren
@@ -109,7 +109,8 @@ liegt in den GitHub-Secrets `ECLIPSE_KEYSTORE_BASE64` und `ECLIPSE_KEYSTORE_PASS
 **Bildschirmfotos:** Der Workflow „Screenshots“ startet die App bei jedem Push ohne Gerät
 (Robolectric) mit einem kleinen Test-Server voller erfundener Sender, Filme und Serien, bedient
 sie mit den Pfeiltasten und legt die Bilder als Artefakt `screenshots` ab
-(`app/src/test/java/de/eclipseiptv/shots`). Logo und Banner entstehen aus `tools/art/gen.py`.
+(`app/src/test/java/de/eclipseiptv/shots`). Logo und Banner entstehen aus `tools/art/gen.py`
+(Wolke: `tools/art/cloud3d.py`, Rauch: `tools/NebulaPreview.java` mit `data/Nebula.java`).
 
 ## Aufbau
 
