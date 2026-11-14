@@ -58,6 +58,14 @@ public final class Clouds {
     private Clouds() {
     }
 
+    /**
+     * Sind Animationen auf dem Geraet abgeschaltet (Entwickleroptionen, Energiesparen),
+     * springen Animationen sofort ans Ende. Dann bleiben die Wolken stattdessen verteilt stehen.
+     */
+    static boolean animationsOn() {
+        return android.os.Build.VERSION.SDK_INT < 26 || ValueAnimator.areAnimatorsEnabled();
+    }
+
     private static RectF lobe(float x, float y, float h, float[] l, float dx, float dy, float scale) {
         float rx = l[2] * GROW * scale * h, ry = l[2] * GROW * SQUASH * scale * h;
         float cx = x + (l[0] + dx) * h, cy = y + (l[1] + dy) * h;
@@ -205,7 +213,7 @@ public final class Clouds {
         }
 
         void animate(boolean run) {
-            if (drift == null) return;
+            if (drift == null || !animationsOn()) return;
             if (run) {
                 if (!drift.isStarted()) {
                     // Der Startpunkt muss nach start() gesetzt werden, sonst beginnt die Animation bei null
@@ -304,6 +312,17 @@ public final class Clouds {
 
         private void update() {
             boolean run = getWindowVisibility() == VISIBLE && isShown();
+            if (!animationsOn()) {
+                // Ohne Animationen: Wolken an ihrem Startpunkt stehen lassen
+                for (ObjectAnimator a : flights) a.cancel();
+                for (int i = 0; i < views.size() && i < spec.length; i++) {
+                    View v = views.get(i);
+                    int cw = v.getLayoutParams().width;
+                    v.setTranslationX(-cw + (getWidth() + cw) * spec[i][4]);
+                }
+                running = false;
+                return;
+            }
             for (int i = 0; i < flights.size(); i++) {
                 ObjectAnimator a = flights.get(i);
                 if (run) {
