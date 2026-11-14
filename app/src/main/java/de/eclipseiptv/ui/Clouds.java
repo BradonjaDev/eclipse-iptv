@@ -74,6 +74,11 @@ public final class Clouds {
         return new RectF(cx - rx, cy - ry, cx + rx, cy + ry);
     }
 
+    /** Umriss einer Wolke (fuer Linien-Darstellungen). */
+    public static Path outlinePath(float x, float y, float h) {
+        return outline(x, y, h);
+    }
+
     private static Path outline(float x, float y, float h) {
         Path out = new Path(), part = new Path();
         for (float[] l : LOBES) {

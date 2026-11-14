@@ -12,9 +12,12 @@ public final class Design {
     public static float[] listEclipse = {0.44f, 0.56f, 0.47f};
     public static float listEclipseIntensity = 0.34f;
     /** Farbe des Randes der Finsternis hinter der Senderliste. */
-    public static int listEclipseRim = 0xFFFFFFFF;
+    public static int listEclipseRim = 0xFFDD1A34;
     /** Dunkler, halbdurchsichtiger Grund hinter jeder Zeile der Senderliste. */
     public static boolean rowBacking = false;
+
+    /** Motiv im Hintergrund: "clouds" (ziehende Wolken) oder eines aus Scenery. */
+    public static String scenery = "clouds";
 
     /** Wolken im Hintergrund: Bahn (y), Hoehe, Tempo (Einheiten/s), Deckkraft, Startpunkt 0..1. */
     public static float[][] sky = {
