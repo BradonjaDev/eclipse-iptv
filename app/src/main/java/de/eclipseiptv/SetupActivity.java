@@ -212,17 +212,15 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
     public String add(Map<String, String> f) {
         final Source s;
         try {
-            if ("xtream".equals(f.get("mode"))) s = Source.xtream(f.get("server"), f.get("user"), f.get("pass"));
-            else s = Source.fromUrl(f.get("url"));
+            if ("xtream".equals(f.get("mode"))) s = Source.xtream(f.get("server"), f.get("user"), f.get("pass"), f.get("alts"));
+            else s = Source.fromInput(f.get("url"));
         } catch (IllegalArgumentException e) {
             return e.getMessage();
         }
         String name = f.get("name");
         if (name != null && !name.trim().isEmpty()) s.name = name.trim();
         for (Source old : db.sources()) {
-            boolean same = s.isXtream() ? old.isXtream() && old.base.equalsIgnoreCase(s.base) && old.user.equals(s.user)
-                    : !old.isXtream() && old.url.equals(s.url);
-            if (same) {
+            if (s.sameAs(old)) {
                 s.id = old.id;
                 if (name == null || name.trim().isEmpty()) s.name = old.name;
             }
@@ -390,7 +388,8 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
         TextView t = Ui.text(this, 15f, Ui.TEXT, true);
         t.setText(xtream ? "Xtream-Zugang" : "M3U-Link");
         panel.addView(t);
-        final String[] hints = xtream ? new String[]{"Server, z. B. http://beispiel.de:8080", "Benutzername", "Passwort"} : new String[]{"http://…"};
+        final String[] hints = xtream ? new String[]{"Server, z. B. http://beispiel.de:8080", "Benutzername", "Passwort",
+                "Ausweich-Server (freiwillig, mit Komma getrennt)"} : new String[]{"http://…"};
         final EditText[] fields = new EditText[hints.length];
         for (int i = 0; i < hints.length; i++) {
             EditText e = new EditText(this);
@@ -419,6 +418,7 @@ public final class SetupActivity extends Activity implements Sync.Listener, Setu
                     f.put("server", fields[0].getText().toString());
                     f.put("user", fields[1].getText().toString());
                     f.put("pass", fields[2].getText().toString());
+                    f.put("alts", fields[3].getText().toString());
                 } else {
                     f.put("mode", "m3u");
                     f.put("url", fields[0].getText().toString());

@@ -27,14 +27,29 @@ public final class Db extends SQLiteOpenHelper {
     }
 
     private Db(Context c) {
-        super(c, "eclipse.db", null, 1);
+        super(c, "eclipse.db", null, 2);
         setWriteAheadLoggingEnabled(true);
+        // Hat ein Ausweich-Server funktioniert, wird er zum Haupt-Server der Quelle.
+        Servers.setStore(new Servers.Store() {
+            @Override
+            public void save(final int sourceId, final String base, final String alts) {
+                writer.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        ContentValues v = new ContentValues();
+                        v.put("base", base);
+                        v.put("alts", alts);
+                        getWritableDatabase().update("source", v, "id=? AND kind=?", new String[]{String.valueOf(sourceId), String.valueOf(Source.XTREAM)});
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onCreate(SQLiteDatabase d) {
         d.execSQL("CREATE TABLE source(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, kind INT, url TEXT, base TEXT,"
-                + " user TEXT, pass TEXT, updated INT DEFAULT 0, n0 INT DEFAULT 0, n1 INT DEFAULT 0, n2 INT DEFAULT 0)");
+                + " user TEXT, pass TEXT, updated INT DEFAULT 0, n0 INT DEFAULT 0, n1 INT DEFAULT 0, n2 INT DEFAULT 0, alts TEXT DEFAULT '')");
         d.execSQL("CREATE TABLE category(source INT, kind INT, ext TEXT, name TEXT, sort INT, hidden INT DEFAULT 0,"
                 + " adult INT DEFAULT 0, cnt INT DEFAULT 0, PRIMARY KEY(source,kind,ext))");
         d.execSQL("CREATE TABLE item(id INTEGER PRIMARY KEY, source INT, kind INT, ext TEXT, name TEXT, sname TEXT,"
@@ -52,6 +67,7 @@ public final class Db extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase d, int from, int to) {
+        if (from < 2) d.execSQL("ALTER TABLE source ADD COLUMN alts TEXT DEFAULT ''");
     }
 
     // ---- Quellen ---------------------------------------------------------------
@@ -69,19 +85,20 @@ public final class Db extends SQLiteOpenHelper {
         s.nLive = c.getInt(8);
         s.nVod = c.getInt(9);
         s.nSeries = c.getInt(10);
+        s.alts = c.isNull(11) ? "" : c.getString(11);
         return s;
     }
 
     public List<Source> sources() {
         List<Source> out = new ArrayList<>();
-        try (Cursor c = getReadableDatabase().rawQuery("SELECT id,name,kind,url,base,user,pass,updated,n0,n1,n2 FROM source ORDER BY id", null)) {
+        try (Cursor c = getReadableDatabase().rawQuery("SELECT id,name,kind,url,base,user,pass,updated,n0,n1,n2,alts FROM source ORDER BY id", null)) {
             while (c.moveToNext()) out.add(readSource(c));
         }
         return out;
     }
 
     public Source source(int id) {
-        try (Cursor c = getReadableDatabase().rawQuery("SELECT id,name,kind,url,base,user,pass,updated,n0,n1,n2 FROM source WHERE id=?", new String[]{String.valueOf(id)})) {
+        try (Cursor c = getReadableDatabase().rawQuery("SELECT id,name,kind,url,base,user,pass,updated,n0,n1,n2,alts FROM source WHERE id=?", new String[]{String.valueOf(id)})) {
             return c.moveToNext() ? readSource(c) : null;
         }
     }
@@ -97,6 +114,7 @@ public final class Db extends SQLiteOpenHelper {
         } finally {
             d.endTransaction();
         }
+        Servers.forget(id);
     }
 
     public void renameSource(int id, String name) {
@@ -123,6 +141,7 @@ public final class Db extends SQLiteOpenHelper {
                 v.put("base", s.base);
                 v.put("user", s.user);
                 v.put("pass", s.pass);
+                v.put("alts", s.alts);
                 s.id = (int) d.insertOrThrow("source", null, v);
             }
             final String sid = String.valueOf(s.id);
@@ -217,6 +236,20 @@ public final class Db extends SQLiteOpenHelper {
                     + ", n0=(SELECT COUNT(*) FROM item WHERE source=" + sid + " AND kind=0)"
                     + ", n1=(SELECT COUNT(*) FROM item WHERE source=" + sid + " AND kind=1)"
                     + ", n2=(SELECT COUNT(*) FROM item WHERE source=" + sid + " AND kind=2) WHERE id=" + sid);
+            if (s.isXtream()) {
+                // Zugangsdaten und Server uebernehmen; der zuletzt funktionierende Server steht vorn.
+                List<String> order = Servers.order(s);
+                ContentValues v = new ContentValues();
+                v.put("url", s.url);
+                v.put("pass", s.pass);
+                if (!order.isEmpty()) {
+                    v.put("base", order.get(0));
+                    StringBuilder alts = new StringBuilder();
+                    for (int i = 1; i < order.size(); i++) alts.append(i > 1 ? "\n" : "").append(order.get(i));
+                    v.put("alts", alts.toString());
+                }
+                d.update("source", v, "id=?", a);
+            }
             d.setTransactionSuccessful();
             return s.id;
         } catch (RuntimeException e) {

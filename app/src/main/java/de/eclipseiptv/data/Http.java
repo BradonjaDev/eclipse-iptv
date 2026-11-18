@@ -15,6 +15,16 @@ public final class Http {
     private Http() {
     }
 
+    /** Der Server hat geantwortet, aber mit einem Fehler (also ist er erreichbar). */
+    public static final class Status extends IOException {
+        public final int code;
+
+        public Status(int code) {
+            super("Der Server antwortet mit Fehler " + code);
+            this.code = code;
+        }
+    }
+
     /** Oeffnet einen Link und folgt Weiterleitungen, auch zwischen http und https. */
     public static InputStream open(String url, int readTimeoutMs) throws IOException {
         String u = url;
@@ -36,7 +46,7 @@ public final class Http {
             }
             if (code < 200 || code >= 300) {
                 c.disconnect();
-                throw new IOException("Der Server antwortet mit Fehler " + code);
+                throw new Status(code);
             }
             InputStream in = c.getInputStream();
             if ("gzip".equalsIgnoreCase(c.getContentEncoding())) in = new GZIPInputStream(in, 16384);

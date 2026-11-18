@@ -6,9 +6,11 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.datasource.DefaultDataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
@@ -56,6 +58,26 @@ public final class LivePlayer {
         if (low.contains(".m3u8")) b.setMimeType(MimeTypes.APPLICATION_M3U8);
         else if (low.contains(".mpd")) b.setMimeType(MimeTypes.APPLICATION_MPD);
         return b.build();
+    }
+
+    /**
+     * Liegt es am Server? Das ist der Fall, wenn er nicht erreichbar ist oder mit einem
+     * Server-Fehler (5xx) bzw. "nicht gefunden" (404) antwortet. Dann lohnt sich ein
+     * Ausweich-Server.
+     */
+    public static boolean serverDown(PlaybackException e) {
+        if (e == null) return false;
+        int c = e.errorCode;
+        if (c == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED || c == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT) return true;
+        if (c == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS) {
+            for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
+                if (t instanceof HttpDataSource.InvalidResponseCodeException) {
+                    int code = ((HttpDataSource.InvalidResponseCodeException) t).responseCode;
+                    return code >= 500 || code == 404;
+                }
+            }
+        }
+        return false;
     }
 
     public static ExoPlayer get(Context c) {

@@ -33,6 +33,7 @@ Einträgen.
 - **Große Playlists:** zehntausende Sender, Filme und Serien werden in eine lokale Datenbank eingelesen und sind danach sofort durchsuchbar
 - **Listen entstehen von selbst:** die Kategorien der Playlist werden übernommen, getrennt nach Sendern, Filmen und Serien
 - **Xtream-Zugänge werden erkannt:** aus einem Link der Form `…/get.php?username=…&password=…` holt die App zusätzlich Beschreibungen, Besetzung, Bewertungen, Trailer und das laufende Programm
+- **Ausweich-Server:** Viele Anbieter nennen für einen Xtream-Zugang mehrere Server-Adressen. Trägst du sie ein, wechselt die App von selbst zur nächsten, wenn ein Server nicht antwortet – beim Einlesen, bei Programm und Details und mitten in der Wiedergabe (Filme laufen an derselben Stelle weiter). Der zuletzt funktionierende Server wird gemerkt und beim nächsten Mal zuerst versucht
 - **Vorschau neben der Senderliste:** Zurück aus dem Vollbild läuft der Sender klein weiter, ohne neu zu laden – über dieselbe Verbindung, auch bei Zugängen mit nur einer erlaubten Verbindung. Das Video geht direkt an die Grafik-Hardware (SurfaceView) und bleibt flüssig, egal was in der Liste passiert
 - **Programm zum Sender:** was läuft gerade, wie lange noch, was kommt danach
 - **Filme und Serien mit Detailseite:** Poster, Handlung, Trailer (über die YouTube-App), Staffeln und Folgen
@@ -63,6 +64,10 @@ Beim ersten Start zeigt Eclipse IPTV einen QR-Code und eine Adresse wie `192.168
 1. Handy ins selbe WLAN bringen, QR-Code scannen oder die Adresse im Browser öffnen.
 2. M3U-Link einfügen oder die Xtream-Zugangsdaten eintragen und auf **Playlist laden** tippen.
 3. Der Fernseher lädt die Playlist und wechselt danach von selbst zur Startseite.
+
+**Ausweich-Server** (nur Xtream): Im Reiter *Xtream-Zugang* gibt es dafür ein eigenes Feld, eine Adresse pro Zeile, z. B. `http://ersatz.beispiel.de:8080`.
+Beim M3U-Link schreibst du die weiteren Server einfach in neue Zeilen unter den `get.php`-Link. Es reicht jeweils `Host:Port`, ein ganzer Link geht auch.
+Welcher Server gerade verwendet wird, steht unter **Optionen**.
 
 Wer eine Tastatur am Gerät hat, kann den Link über **Am Gerät eingeben** auch direkt eintippen.
 Weitere Playlists lassen sich später unter **Optionen → Playlists verwalten** hinzufügen.
@@ -116,6 +121,7 @@ sie mit den Pfeiltasten und legt die Bilder als Artefakt `screenshots` ab
 | Paket / Datei | Aufgabe |
 |---|---|
 | `data/Importer`, `M3u`, `Xtream`, `Json` | Playlist einlesen: M3U zeilenweise, Xtream über die Schnittstelle, alles im Datenstrom |
+| `data/Servers` | Ausweich-Server: Abrufe der Reihe nach über alle Server eines Zugangs, merkt den funktionierenden |
 | `data/Db` | SQLite: Quellen, Kategorien, Einträge, Folgen, Favoriten und Abspielpositionen |
 | `data/Sync`, `Epg` | Einlesen im Hintergrund, Programminfos mit Zwischenspeicher |
 | `MainActivity` | Leiste links und die Bereiche Suche, Start, Sender, Filme, Serien, Optionen |

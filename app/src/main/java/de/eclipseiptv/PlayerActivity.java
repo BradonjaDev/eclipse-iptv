@@ -379,6 +379,7 @@ public final class PlayerActivity extends Activity implements Player.Listener {
     /** Startet den aktuellen Eintrag der Liste. from: Startposition, kleiner 0 = aus dem Eintrag. */
     private void start(long from) {
         cur = queue.get(index);
+        cur.fresh();
         retries = 0;
         triedAlt = false;
         started = false;
@@ -452,6 +453,7 @@ public final class PlayerActivity extends Activity implements Player.Listener {
         spinner.setVisibility(state == Player.STATE_BUFFERING ? View.VISIBLE : View.GONE);
         if (state == Player.STATE_READY) {
             started = true;
+            if (cur != null) cur.works();
             hideMessage();
         } else if (state == Player.STATE_ENDED) {
             if (live) {
@@ -490,6 +492,8 @@ public final class PlayerActivity extends Activity implements Player.Listener {
                 player.prepare();
                 return;
             }
+            // Antwortet der Server gar nicht, hilft das andere Format nicht: gleich zum naechsten Server.
+            if (LivePlayer.serverDown(e) && !started && retries == 0 && !triedAlt && switchServer(0)) return;
             if (!triedAlt && !Text.empty(cur.altUrl) && !started) {
                 triedAlt = true;
                 open(cur.altUrl, 0);
@@ -502,17 +506,33 @@ public final class PlayerActivity extends Activity implements Player.Listener {
                 Bg.uiDelayed(retry, 1500L * retries);
                 return;
             }
+            if (switchServer(0)) return;
             showMessage("Dieser Sender ist gerade nicht erreichbar.\n" + reason(e));
         } else {
+            long pos = Math.max(0, player.getCurrentPosition());
+            if (pos <= 0 && !started) pos = Math.max(0, cur.startPos);
+            if (LivePlayer.serverDown(e) && !started && retries == 0 && switchServer(pos)) return;
             if (retries < 2) {
                 retries++;
-                long pos = Math.max(0, player.getCurrentPosition());
                 player.seekTo(pos);
                 player.prepare();
                 return;
             }
+            // Filme setzen auf dem anderen Server an der letzten Position fort.
+            if (switchServer(pos)) return;
             showMessage("Das Video kann nicht abgespielt werden.\n" + reason(e));
         }
+    }
+
+    /** Wechselt zum naechsten Ausweich-Server. False, wenn es keinen mehr gibt. */
+    private boolean switchServer(long from) {
+        if (cur == null || !cur.nextServer()) return false;
+        retries = 0;
+        triedAlt = false;
+        Bg.cancel(retry);
+        showMessage("Server antwortet nicht – wechsle zu " + cur.host() + " …");
+        open(cur.url, live ? 0 : from);
+        return true;
     }
 
     private static String reason(PlaybackException e) {

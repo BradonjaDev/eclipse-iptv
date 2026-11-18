@@ -30,16 +30,34 @@ public final class Xtream {
         }
     }
 
+    /** Der Abruf-Link fuer den gerade verwendeten Server. */
     public String api(String action, String... kv) {
-        StringBuilder b = new StringBuilder(s.base).append("/player_api.php?username=").append(enc(s.user))
+        return api(Servers.current(s), action, kv);
+    }
+
+    private String api(String base, String action, String... kv) {
+        StringBuilder b = new StringBuilder(base).append("/player_api.php?username=").append(enc(s.user))
                 .append("&password=").append(enc(s.pass));
         if (action != null) b.append("&action=").append(action);
         for (int i = 0; i + 1 < kv.length; i += 2) b.append('&').append(kv[i]).append('=').append(enc(kv[i + 1]));
         return b.toString();
     }
 
+    /**
+     * Ruft die Schnittstelle ab. Antwortet der Server nicht, kommen die Ausweich-Server
+     * der Reihe nach dran (siehe {@link Servers}).
+     */
+    public Json json(final String action, final int timeoutMs, final String... kv) throws IOException {
+        return Servers.call(s, new Servers.Call<Json>() {
+            @Override
+            public Json run(String base) throws IOException {
+                return Http.json(api(base, action, kv), timeoutMs);
+            }
+        });
+    }
+
     private String stream(String type, String id, String ext) {
-        return s.base + "/" + type + "/" + enc(s.user) + "/" + enc(s.pass) + "/" + id + (Text.empty(ext) ? "" : "." + ext);
+        return Servers.current(s) + "/" + type + "/" + enc(s.user) + "/" + enc(s.pass) + "/" + id + (Text.empty(ext) ? "" : "." + ext);
     }
 
     public String liveUrl(String id, boolean hls) {
@@ -57,7 +75,7 @@ public final class Xtream {
     /** Prueft die Zugangsdaten. Wirft eine verstaendliche Meldung, wenn sie nicht stimmen. */
     public Account account() throws IOException {
         Object root;
-        try (Json j = Http.json(api(null), 30000)) {
+        try (Json j = json(null, 30000)) {
             root = j.readValue();
         }
         Map<String, Object> u = Json.obj(root, "user_info");
@@ -76,7 +94,7 @@ public final class Xtream {
 
     public Details vodInfo(String id) throws IOException {
         Object root;
-        try (Json j = Http.json(api("get_vod_info", "vod_id", id), 30000)) {
+        try (Json j = json("get_vod_info", 30000, "vod_id", id)) {
             root = j.readValue();
         }
         Map<String, Object> i = Json.obj(root, "info");
@@ -111,7 +129,7 @@ public final class Xtream {
 
     public Details seriesInfo(String id) throws IOException {
         Object root;
-        try (Json j = Http.json(api("get_series_info", "series_id", id), 45000)) {
+        try (Json j = json("get_series_info", 45000, "series_id", id)) {
             root = j.readValue();
         }
         Details d = new Details();
@@ -150,7 +168,7 @@ public final class Xtream {
     /** Die naechsten Sendungen eines Senders. Leer, wenn der Anbieter kein Programm liefert. */
     public List<Programme> shortEpg(String streamId, int limit) throws IOException {
         Object root;
-        try (Json j = Http.json(api("get_short_epg", "stream_id", streamId, "limit", String.valueOf(limit)), 15000)) {
+        try (Json j = json("get_short_epg", 15000, "stream_id", streamId, "limit", String.valueOf(limit))) {
             root = j.readValue();
         }
         List<Programme> out = new ArrayList<>();

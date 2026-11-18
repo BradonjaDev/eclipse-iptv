@@ -43,7 +43,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
     private ExoPlayer player;
     private Source source;
     private int retries;
-    private boolean triedAlt;
+    private boolean triedAlt, started;
     /** Fuer welchen Sender die Sendungszeile zuletzt geladen wurde. */
     private Playable epgFor;
 
@@ -122,6 +122,7 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
         }
         retries = 0;
         triedAlt = false;
+        started = player != null && player.getPlaybackState() == Player.STATE_READY;
         show();
     }
 
@@ -195,7 +196,12 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
 
     @Override
     public void onPlaybackStateChanged(int state) {
-        if (state == Player.STATE_READY) retries = 0;
+        if (state == Player.STATE_READY) {
+            retries = 0;
+            started = true;
+            Playable p = LivePlayer.current();
+            if (p != null) p.works();
+        }
         show();
     }
 
@@ -216,6 +222,9 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
             player.prepare();
             return;
         }
+        boolean down = LivePlayer.serverDown(e);
+        // Antwortet der Server gar nicht, hilft das andere Format nicht: gleich den naechsten nehmen.
+        if (down && !started && retries == 0 && !triedAlt && switchServer(p)) return;
         if (!triedAlt && !Text.empty(p.altUrl)) {
             triedAlt = true;
             LivePlayer.play(getContext(), p, p.altUrl);
@@ -227,10 +236,22 @@ public final class LivePreview extends FrameLayout implements Player.Listener {
             Bg.uiDelayed(retry, 2000L * retries);
             return;
         }
+        if (switchServer(p)) return;
         placeholder.setVisibility(VISIBLE);
         overlay.setVisibility(GONE);
         spinner.setVisibility(GONE);
         hint.setText(p.title + " ist gerade nicht erreichbar.");
+    }
+
+    /** Wechselt zum naechsten Ausweich-Server und startet dort neu. */
+    private boolean switchServer(Playable p) {
+        if (!p.nextServer()) return false;
+        retries = 0;
+        triedAlt = false;
+        Bg.cancel(retry);
+        hint.setText("Server antwortet nicht – wechsle zu " + p.host() + " …");
+        LivePlayer.play(getContext(), p, p.url);
+        return true;
     }
 
     @Override

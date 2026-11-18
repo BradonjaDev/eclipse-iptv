@@ -62,6 +62,12 @@ public final class SettingsView extends ScrollView implements Section {
                         host.refreshNow();
                     }
                 });
+        if (s.isXtream() && s.servers().size() > 1) {
+            java.util.List<String> order = de.eclipseiptv.data.Servers.order(s);
+            StringBuilder others = new StringBuilder();
+            for (int i = 1; i < order.size(); i++) others.append(i > 1 ? ", " : "").append(order.get(i));
+            row("Server: " + order.get(0), "Ausweich-Server: " + others, null, null);
+        }
         row("Playlists verwalten", "Weitere Playlist hinzufügen, wechseln oder entfernen", null, new Runnable() {
             @Override
             public void run() {

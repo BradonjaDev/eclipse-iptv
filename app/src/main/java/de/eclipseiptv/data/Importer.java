@@ -46,7 +46,7 @@ public final class Importer {
         String[] itemActions = {"get_live_streams", "get_vod_streams", "get_series"};
         for (int kind = 0; kind < 3; kind++) {
             sink.progress(kind, 0);
-            try (Json j = Http.json(x.api(catActions[kind]), 60000)) {
+            try (Json j = x.json(catActions[kind], 60000)) {
                 if (j.isArray()) {
                     j.beginArray();
                     while (j.hasNext()) {
@@ -65,7 +65,7 @@ public final class Importer {
                 }
             }
             int n = 0;
-            try (Json j = Http.json(x.api(itemActions[kind]), 180000)) {
+            try (Json j = x.json(itemActions[kind], 180000)) {
                 if (!j.isArray()) continue;
                 j.beginArray();
                 while (j.hasNext()) {
