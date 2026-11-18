@@ -5,18 +5,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +23,7 @@ import java.util.List;
 
 /** Ausweich-Server: Abrufe mit lokalen Servern, die ausfallen, Fehler melden oder funktionieren. */
 public class ServersTest {
-    private final List<HttpServer> running = new ArrayList<>();
+    private final List<ServerSocket> running = new ArrayList<>();
     private final List<String[]> saved = new ArrayList<>();
 
     @Before
@@ -40,28 +39,44 @@ public class ServersTest {
 
     @After
     public void tearDown() {
-        for (HttpServer s : running) s.stop(0);
+        for (ServerSocket s : running) {
+            try {
+                s.close();
+            } catch (IOException ignored) {
+            }
+        }
         Servers.setStore(null);
         Servers.reset();
     }
 
     /** Ein Server, der auf alles mit diesem Status und Inhalt antwortet. */
     private String server(final int status, final String body) throws IOException {
-        HttpServer h = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        h.createContext("/", new HttpHandler() {
+        final ServerSocket ss = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"));
+        running.add(ss);
+        Thread t = new Thread(new Runnable() {
             @Override
-            public void handle(HttpExchange x) throws IOException {
-                byte[] b = body.getBytes(StandardCharsets.UTF_8);
-                x.getResponseHeaders().add("Content-Type", "application/json");
-                x.sendResponseHeaders(status, b.length);
-                try (OutputStream o = x.getResponseBody()) {
-                    o.write(b);
+            public void run() {
+                while (!ss.isClosed()) {
+                    try (Socket c = ss.accept()) {
+                        BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8));
+                        String line;
+                        while ((line = in.readLine()) != null && !line.isEmpty()) {
+                            // Anfrage-Kopf ueberspringen
+                        }
+                        byte[] b = body.getBytes(StandardCharsets.UTF_8);
+                        OutputStream o = c.getOutputStream();
+                        o.write(("HTTP/1.1 " + status + " X\r\nContent-Type: application/json\r\nContent-Length: " + b.length
+                                + "\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+                        o.write(b);
+                        o.flush();
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         });
-        h.start();
-        running.add(h);
-        return "http://127.0.0.1:" + h.getAddress().getPort();
+        t.setDaemon(true);
+        t.start();
+        return "http://127.0.0.1:" + ss.getLocalPort();
     }
 
     /** Eine Adresse, an der niemand lauscht. */
